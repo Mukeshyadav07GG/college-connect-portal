@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index.tsx";
+import StudentDashboard from "./pages/StudentDashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -20,7 +21,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              {/* Phase 2 will add /student, /faculty, /admin */}
+              <Route path="/student/*" element={<StudentDashboard />} />
+              {/* Phase 3 will add /faculty, /admin */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
