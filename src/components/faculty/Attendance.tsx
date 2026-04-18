@@ -1,0 +1,99 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+
+interface Student { user_id: string; full_name: string; roll_number: string | null; }
+
+export const Attendance = () => {
+  const { user } = useAuth();
+  const [students, setStudents] = useState<Student[]>([]);
+  const [subjects, setSubjects] = useState<{ code: string; name: string }[]>([]);
+  const [subject, setSubject] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [marks, setMarks] = useState<Record<string, "present" | "absent">>({});
+  const [editOpen, setEditOpen] = useState(false);
+  const [editStudent, setEditStudent] = useState<Student | null>(null);
+
+  useEffect(() => {
+    supabase.from("profiles").select("user_id, full_name, roll_number").not("roll_number", "is", null).then(({ data }) => {
+      setStudents((data as Student[]) ?? []);
+    });
+    supabase.from("subjects").select("code, name").then(({ data }) => {
+      setSubjects((data as any) ?? []);
+    });
+  }, []);
+
+  const toggle = (uid: string) => {
+    setMarks((m) => ({ ...m, [uid]: m[uid] === "present" ? "absent" : "present" }));
+  };
+
+  const save = async () => {
+    if (!subject) { toast.error("Pick a subject"); return; }
+    const rows = students.map((s) => ({
+      student_id: s.user_id, subject_code: subject, date, status: marks[s.user_id] ?? "absent", marked_by: user?.id ?? null,
+    }));
+    const { error } = await supabase.from("attendance").insert(rows);
+    if (error) toast.error(error.message); else toast.success("Attendance saved");
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Attendance</h1>
+        <p className="text-muted-foreground">Mark and edit student attendance</p>
+      </div>
+
+      <Card className="glass-card p-4 flex flex-wrap gap-3 items-end">
+        <div className="flex-1 min-w-[180px]">
+          <Label>Subject</Label>
+          <Select value={subject} onValueChange={setSubject}>
+            <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
+            <SelectContent>
+              {subjects.map((s) => <SelectItem key={s.code} value={s.code}>{s.code} – {s.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label>Date</Label>
+          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        </div>
+        <Button onClick={save}>Save</Button>
+      </Card>
+
+      <Card className="glass-card p-4">
+        <div className="space-y-2">
+          {students.map((s) => (
+            <div key={s.user_id} className="flex items-center justify-between p-3 rounded-lg hover:bg-accent">
+              <div>
+                <p className="font-medium">{s.full_name}</p>
+                <p className="text-xs text-muted-foreground">{s.roll_number}</p>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant={marks[s.user_id] === "present" ? "default" : "outline"} onClick={() => toggle(s.user_id)}>
+                  {marks[s.user_id] === "present" ? "Present" : "Absent"}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => { setEditStudent(s); setEditOpen(true); }}>Edit</Button>
+              </div>
+            </div>
+          ))}
+          {students.length === 0 && <p className="text-center text-sm text-muted-foreground py-6">No students found.</p>}
+        </div>
+      </Card>
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="glass-card">
+          <DialogHeader><DialogTitle>Edit attendance — {editStudent?.full_name}</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">Use the Present/Absent toggle in the list, then click Save.</p>
+          <Button onClick={() => setEditOpen(false)}>Close</Button>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
