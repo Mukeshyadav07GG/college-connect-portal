@@ -8,6 +8,7 @@ import {
   GraduationCap, User, Calendar as CalIcon, Users, FileText, BookOpen,
   BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home,
 } from "lucide-react";
+import { FloatingChat } from "@/components/FloatingChat";
 
 interface NavItem { to: string; label: string; icon: any; }
 
@@ -120,6 +121,7 @@ export const StudentLayout = ({ children }: { children?: ReactNode }) => {
 
         <main className="flex-1 p-4 lg:p-8 animate-fade-in">{children ?? <Outlet />}</main>
       </div>
+      <FloatingChat />
     </div>
   );
 };

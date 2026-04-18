@@ -19,7 +19,7 @@ interface Props {
 
 export const DashboardLayout = ({ children, title, items, requiredRole }: Props) => {
   const { profile, role, loading, signOut } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggle: toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
