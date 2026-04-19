@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, FileText } from "lucide-react";
+import { Plus, FileText, Eye, Download } from "lucide-react";
 
 export const AssignmentCreate = () => {
   const { user } = useAuth();
@@ -80,14 +80,40 @@ export const AssignmentCreate = () => {
       </div>
 
       <div className="grid gap-3">
-        {list.map((a) => (
-          <Card key={a.id} className="glass-card p-4 flex items-start gap-3">
+        {list.map((a, i) => (
+          <Card key={a.id} className="glass-card p-4 flex items-start gap-3 animate-slide-up hover-lift" style={{ animationDelay: `${Math.min(i, 12) * 50}ms` }}>
             <FileText className="h-5 w-5 text-primary mt-1" />
             <div className="flex-1">
               <p className="font-semibold">{a.title}</p>
               <p className="text-sm text-muted-foreground">{a.subject_code} • Due {a.deadline ? new Date(a.deadline).toLocaleString() : "—"}</p>
               {a.description && <p className="text-sm mt-1">{a.description}</p>}
             </div>
+            {a.file_url && (
+              <div className="flex flex-col gap-1.5">
+                <Button
+                  size="sm" variant="outline"
+                  onClick={async () => {
+                    const { data, error } = await supabase.storage.from("assignments").createSignedUrl(a.file_url, 300);
+                    if (error) return toast.error(error.message);
+                    window.open(data.signedUrl, "_blank");
+                  }}
+                >
+                  <Eye className="h-3.5 w-3.5 mr-1" /> View
+                </Button>
+                <Button
+                  size="sm" variant="outline"
+                  onClick={async () => {
+                    const fname = a.file_url.split("/").pop() ?? "file";
+                    const { data, error } = await supabase.storage.from("assignments").createSignedUrl(a.file_url, 300, { download: fname });
+                    if (error) return toast.error(error.message);
+                    const link = document.createElement("a");
+                    link.href = data.signedUrl; link.download = fname; link.click();
+                  }}
+                >
+                  <Download className="h-3.5 w-3.5 mr-1" /> Download
+                </Button>
+              </div>
+            )}
           </Card>
         ))}
         {list.length === 0 && <p className="text-center text-muted-foreground py-8">No assignments yet.</p>}
