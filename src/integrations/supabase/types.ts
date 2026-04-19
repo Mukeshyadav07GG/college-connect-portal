@@ -252,10 +252,13 @@ export type Database = {
       }
       profiles: {
         Row: {
+          aadhar: string | null
           avatar_url: string | null
           bio: string | null
           branch: string | null
+          course: string | null
           created_at: string
+          dob: string | null
           email: string | null
           employee_id: string | null
           full_name: string
@@ -266,12 +269,16 @@ export type Database = {
           semester: string | null
           updated_at: string
           user_id: string
+          year: string | null
         }
         Insert: {
+          aadhar?: string | null
           avatar_url?: string | null
           bio?: string | null
           branch?: string | null
+          course?: string | null
           created_at?: string
+          dob?: string | null
           email?: string | null
           employee_id?: string | null
           full_name: string
@@ -282,12 +289,16 @@ export type Database = {
           semester?: string | null
           updated_at?: string
           user_id: string
+          year?: string | null
         }
         Update: {
+          aadhar?: string | null
           avatar_url?: string | null
           bio?: string | null
           branch?: string | null
+          course?: string | null
           created_at?: string
+          dob?: string | null
           email?: string | null
           employee_id?: string | null
           full_name?: string
@@ -298,6 +309,7 @@ export type Database = {
           semester?: string | null
           updated_at?: string
           user_id?: string
+          year?: string | null
         }
         Relationships: []
       }
