@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   GraduationCap, User, Calendar as CalIcon, Users, FileText, BookOpen,
-  BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home,
+  BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home, CalendarCheck, KeyRound,
 } from "lucide-react";
 import { FloatingChat } from "@/components/FloatingChat";
 
@@ -17,6 +17,7 @@ const NAV: NavItem[] = [
   { to: "/student/timetable", label: "Time Table", icon: CalIcon },
   { to: "/student/faculty", label: "Faculty", icon: Users },
   { to: "/student/assignments", label: "Assignments", icon: FileText },
+  { to: "/student/attendance", label: "Attendance", icon: CalendarCheck },
   { to: "/student/syllabus", label: "Syllabus", icon: BookOpen },
   { to: "/student/result", label: "Result", icon: BarChart3 },
   { to: "/student/hostel", label: "Hostel", icon: Building2 },
@@ -71,14 +72,17 @@ export const StudentLayout = ({ children }: { children?: ReactNode }) => {
       </nav>
 
       <div className="border-t border-border p-3 space-y-1">
-        <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-primary/10 text-muted-foreground">
+        <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-primary/10 text-muted-foreground transition-all hover:translate-x-1">
           <Home className="w-4 h-4" /> Public Site
         </Link>
-        <button onClick={toggle} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-primary/10 text-muted-foreground">
+        <button onClick={toggle} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-primary/10 text-muted-foreground transition-all hover:translate-x-1">
           {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           {theme === "dark" ? "Light Mode" : "Dark Mode"}
         </button>
-        <button onClick={() => { signOut(); navigate("/"); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-destructive/10 text-destructive">
+        <button onClick={() => { setMobileOpen(false); navigate("/change-password"); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-primary/10 text-muted-foreground transition-all hover:translate-x-1">
+          <KeyRound className="w-4 h-4" /> Change Password
+        </button>
+        <button onClick={() => { signOut(); navigate("/"); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm hover:bg-destructive/10 text-destructive transition-all hover:translate-x-1">
           <LogOut className="w-4 h-4" /> Sign Out
         </button>
       </div>
@@ -119,7 +123,11 @@ export const StudentLayout = ({ children }: { children?: ReactNode }) => {
           </div>
         </header>
 
-        <main className="flex-1 p-4 lg:p-8 animate-fade-in">{children ?? <Outlet />}</main>
+        <main className="flex-1 p-4 lg:p-8">
+          <div key={location.pathname} className="animate-page-enter">
+            {children ?? <Outlet />}
+          </div>
+        </main>
       </div>
       <FloatingChat />
     </div>

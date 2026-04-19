@@ -4,6 +4,7 @@ import { Profile } from "@/components/student/Profile";
 import { Timetable } from "@/components/student/Timetable";
 import { FacultyDirectory } from "@/components/student/FacultyDirectory";
 import { Assignments } from "@/components/student/Assignments";
+import { AttendanceHistory } from "@/components/student/AttendanceHistory";
 import { Syllabus } from "@/components/student/Syllabus";
 import { Result } from "@/components/student/Result";
 import { HostelStudent } from "@/components/student/HostelStudent";
@@ -18,6 +19,7 @@ const StudentDashboard = () => {
         <Route path="timetable" element={<Timetable />} />
         <Route path="faculty" element={<FacultyDirectory />} />
         <Route path="assignments" element={<Assignments />} />
+        <Route path="attendance" element={<AttendanceHistory />} />
         <Route path="syllabus" element={<Syllabus />} />
         <Route path="result" element={<Result />} />
         <Route path="hostel" element={<HostelStudent />} />

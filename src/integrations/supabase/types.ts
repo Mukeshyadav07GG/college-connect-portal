@@ -343,6 +343,36 @@ export type Database = {
         }
         Relationships: []
       }
+      subject_notes: {
+        Row: {
+          created_at: string
+          file_path: string
+          id: string
+          subject_code: string
+          title: string
+          unit_number: number | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_path: string
+          id?: string
+          subject_code: string
+          title: string
+          unit_number?: number | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_path?: string
+          id?: string
+          subject_code?: string
+          title?: string
+          unit_number?: number | null
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       subjects: {
         Row: {
           branch: string | null

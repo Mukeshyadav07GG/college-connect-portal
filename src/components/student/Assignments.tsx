@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, Upload, FileText, Loader2, CheckCircle2 } from "lucide-react";
+import { Calendar, Upload, FileText, Loader2, CheckCircle2, Download, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -112,15 +112,47 @@ export const Assignments = () => {
                     Due {new Date(a.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                   </div>
                 )}
-                <Button
-                  size="sm"
-                  className={`w-full ${sub ? "" : "glow-button"}`}
-                  variant={sub ? "outline" : "default"}
-                  onClick={() => setUploadFor(a)}
-                >
-                  <Upload className="w-3.5 h-3.5 mr-1.5" />
-                  {sub ? "Re-submit" : "Upload"}
-                </Button>
+                <div className="flex gap-1.5">
+                  {a.file_url && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={async () => {
+                          const { data, error } = await supabase.storage.from("assignments").createSignedUrl(a.file_url!, 300);
+                          if (error) return toast.error(error.message);
+                          window.open(data.signedUrl, "_blank");
+                        }}
+                      >
+                        <Eye className="w-3.5 h-3.5 mr-1" /> View
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={async () => {
+                          const fname = a.file_url!.split("/").pop() ?? "assignment";
+                          const { data, error } = await supabase.storage.from("assignments").createSignedUrl(a.file_url!, 300, { download: fname });
+                          if (error) return toast.error(error.message);
+                          const link = document.createElement("a");
+                          link.href = data.signedUrl; link.download = fname; link.click();
+                        }}
+                      >
+                        <Download className="w-3.5 h-3.5 mr-1" /> Get
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    size="sm"
+                    className={`flex-1 ${sub ? "" : "glow-button"}`}
+                    variant={sub ? "outline" : "default"}
+                    onClick={() => setUploadFor(a)}
+                  >
+                    <Upload className="w-3.5 h-3.5 mr-1" />
+                    {sub ? "Re-submit" : "Submit"}
+                  </Button>
+                </div>
               </div>
             );
           })}
