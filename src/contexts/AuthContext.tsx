@@ -17,7 +17,15 @@ interface Profile {
   phone: string | null;
   avatar_url: string | null;
   bio: string | null;
+  course?: string | null;
+  year?: string | null;
+  dob?: string | null;
+  aadhar?: string | null;
 }
+
+/** Convert any user-typed ID into the internal email used by Supabase auth. */
+export const idToEmail = (id: string) =>
+  `${id.trim().toLowerCase().replace(/[^a-z0-9]/g, "")}@knmiet.local`;
 
 interface AuthContextType {
   user: User | null;

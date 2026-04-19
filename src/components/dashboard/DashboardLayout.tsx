@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth, AppRole } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, LogOut, Moon, Sun } from "lucide-react";
+import { Menu, LogOut, Moon, Sun, KeyRound } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { FloatingChat } from "@/components/FloatingChat";
 import { toast } from "sonner";
@@ -60,6 +60,9 @@ export const DashboardLayout = ({ children, title, items, requiredRole }: Props)
         <Button variant="ghost" className="w-full justify-start" onClick={toggleTheme}>
           {theme === "dark" ? <Sun className="h-4 w-4 mr-2" /> : <Moon className="h-4 w-4 mr-2" />}
           {theme === "dark" ? "Light" : "Dark"} mode
+        </Button>
+        <Button variant="ghost" className="w-full justify-start" onClick={() => navigate("/change-password")}>
+          <KeyRound className="h-4 w-4 mr-2" /> Change password
         </Button>
         <Button variant="ghost" className="w-full justify-start text-destructive" onClick={async () => { await signOut(); navigate("/"); }}>
           <LogOut className="h-4 w-4 mr-2" /> Sign out
