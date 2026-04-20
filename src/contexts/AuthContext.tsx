@@ -33,6 +33,7 @@ interface AuthContextType {
   profile: Profile | null;
   role: AppRole | null;
   loading: boolean;
+  profileLoading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -45,14 +46,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const loadProfile = async (uid: string) => {
-    const [{ data: prof }, { data: roleRow }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", uid).maybeSingle(),
-    ]);
-    setProfile(prof as Profile | null);
-    setRole((roleRow?.role as AppRole) ?? null);
+    setProfileLoading(true);
+    try {
+      const [{ data: prof }, { data: roleRow }] = await Promise.all([
+        supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle(),
+        supabase.from("user_roles").select("role").eq("user_id", uid).maybeSingle(),
+      ]);
+      setProfile(prof as Profile | null);
+      setRole((roleRow?.role as AppRole) ?? null);
+    } finally {
+      setProfileLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -60,10 +67,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
       if (newSession?.user) {
+        setProfileLoading(true);
         setTimeout(() => { loadProfile(newSession.user.id); }, 0);
       } else {
         setProfile(null);
         setRole(null);
+        setProfileLoading(false);
       }
     });
 
@@ -88,7 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, role, loading, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, role, loading, profileLoading, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
