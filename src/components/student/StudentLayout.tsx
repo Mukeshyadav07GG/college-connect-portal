@@ -26,17 +26,18 @@ const NAV: NavItem[] = [
 ];
 
 export const StudentLayout = ({ children }: { children?: ReactNode }) => {
-  const { user, profile, role, loading, signOut } = useAuth();
+  const { user, profile, role, loading, profileLoading, signOut } = useAuth();
   const { theme, toggle } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    if (!loading && (!user || role !== "student")) navigate("/");
-  }, [user, role, loading, navigate]);
+    if (loading || profileLoading) return;
+    if (!user || role !== "student") navigate("/");
+  }, [user, role, loading, profileLoading, navigate]);
 
-  if (loading || !user) {
+  if (loading || profileLoading || !user) {
     return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
   }
 

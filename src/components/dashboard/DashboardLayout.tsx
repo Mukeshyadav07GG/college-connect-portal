@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const DashboardLayout = ({ children, title, items, requiredRole }: Props) => {
-  const { profile, role, loading, signOut } = useAuth();
+  const { profile, role, loading, profileLoading, signOut } = useAuth();
   const { theme, toggle: toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,13 +28,14 @@ export const DashboardLayout = ({ children, title, items, requiredRole }: Props)
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
   useEffect(() => {
-    if (!loading && (!profile || role !== requiredRole)) {
+    if (loading || profileLoading) return;
+    if (!profile || role !== requiredRole) {
       toast.error("Access denied");
       navigate("/");
     }
-  }, [loading, profile, role, requiredRole, navigate]);
+  }, [loading, profileLoading, profile, role, requiredRole, navigate]);
 
-  if (loading || !profile) {
+  if (loading || profileLoading || !profile) {
     return <div className="min-h-screen flex items-center justify-center animate-fade-in">Loading…</div>;
   }
 

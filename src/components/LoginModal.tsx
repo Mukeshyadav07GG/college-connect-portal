@@ -39,12 +39,24 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
     setLoading(true);
     try {
       const email = idToEmail(idNumber);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      toast.success(`Welcome back, ${ROLE_META[role].label}!`);
+
+      // Resolve the user's actual role from the database — don't trust the active tab.
+      let resolvedRole: Role = role;
+      if (data.user) {
+        const { data: roleRow } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", data.user.id)
+          .maybeSingle();
+        if (roleRow?.role) resolvedRole = roleRow.role as Role;
+      }
+
+      toast.success(`Welcome back, ${ROLE_META[resolvedRole].label}!`);
       onOpenChange(false);
-      // Direct redirect to the role's dashboard — no extra picker
-      navigate(ROLE_META[role].route);
+      // Small delay lets the modal close animation play before navigating
+      setTimeout(() => navigate(ROLE_META[resolvedRole].route), 150);
     } catch (err: any) {
       toast.error(err?.message ?? "Login failed");
     } finally {
