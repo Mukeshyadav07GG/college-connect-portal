@@ -30,13 +30,16 @@ export const StudentDirectory = () => {
   const [unreadFrom, setUnreadFrom] = useState<Record<string, number>>({});
   const endRef = useRef<HTMLDivElement>(null);
 
-  // Load only student-role users
+  // Load students (identified by having a roll_number; faculty have employee_id instead).
+  // We can't query user_roles for other users due to RLS, so we filter profiles directly.
   useEffect(() => {
     (async () => {
-      const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "student");
-      const ids = (roles ?? []).map((r) => r.user_id);
-      if (ids.length === 0) return;
-      const { data: profs } = await supabase.from("profiles").select("*").in("user_id", ids).order("roll_number");
+      const { data: profs, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .not("roll_number", "is", null)
+        .order("roll_number");
+      if (error) { console.error("Failed to load students:", error); return; }
       setStudents((profs as StudentProfile[]) ?? []);
     })();
   }, []);
