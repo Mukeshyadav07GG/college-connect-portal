@@ -24,6 +24,17 @@ const STUDENTS: { roll: string; name: string }[] = [
   { roll: "02303cse012", name: "Nandani Kumari" },
 ];
 
+// 7 real faculty members, mapped to employee IDs FAC001..FAC007
+const FACULTY: { empId: string; name: string; designation: string }[] = [
+  { empId: "FAC001", name: "Shishir Rastogi",    designation: "Director" },
+  { empId: "FAC002", name: "Dr. Neeraj Jain",    designation: "HOD - CSE" },
+  { empId: "FAC003", name: "Mr. Nikhil Tyagi",   designation: "Coordinator - CSE" },
+  { empId: "FAC004", name: "Mr. P.K. Agarwal",   designation: "Professor" },
+  { empId: "FAC005", name: "Mr. Aditya Paliwal", designation: "Professor" },
+  { empId: "FAC006", name: "Ms. Archana Rajora", designation: "Professor" },
+  { empId: "FAC007", name: "Mr. Saransh Sharma", designation: "Professor" },
+];
+
 const idToEmail = (id: string) => `${id.toLowerCase().replace(/[^a-z0-9]/g, "")}@knmiet.local`;
 
 Deno.serve(async (req) => {
@@ -45,14 +56,17 @@ Deno.serve(async (req) => {
     page++;
   }
 
-  let createdCount = 0;
-  let skippedCount = 0;
+  let studentsCreated = 0;
+  let studentsSkipped = 0;
+  let facultyCreated = 0;
+  let facultySkipped = 0;
   const errors: string[] = [];
 
+  // Seed students
   for (const s of STUDENTS) {
     const email = idToEmail(s.roll);
     if (existingByEmail.has(email)) {
-      skippedCount++;
+      studentsSkipped++;
       continue;
     }
     const { error } = await supabase.auth.admin.createUser({
@@ -68,23 +82,48 @@ Deno.serve(async (req) => {
         section: SECTION,
       },
     });
-    if (error) {
-      errors.push(`${s.roll}: ${error.message}`);
+    if (error) { errors.push(`${s.roll}: ${error.message}`); continue; }
+    studentsCreated++;
+  }
+
+  // Seed faculty
+  for (const f of FACULTY) {
+    const email = idToEmail(f.empId);
+    if (existingByEmail.has(email)) {
+      facultySkipped++;
       continue;
     }
-    createdCount++;
+    const { error } = await supabase.auth.admin.createUser({
+      email,
+      password: SHARED_PASSWORD,
+      email_confirm: true,
+      user_metadata: {
+        full_name: f.name,
+        role: "faculty",
+        employee_id: f.empId,
+        branch: "CSE",
+        bio: f.designation,
+      },
+    });
+    if (error) { errors.push(`${f.empId}: ${error.message}`); continue; }
+    facultyCreated++;
   }
 
   return new Response(
     JSON.stringify({
       ok: true,
       summary: {
-        studentsCreated: createdCount,
-        studentsAlreadyExisted: skippedCount,
+        studentsCreated,
+        studentsAlreadyExisted: studentsSkipped,
+        facultyCreated,
+        facultyAlreadyExisted: facultySkipped,
         errors: errors.length ? errors : undefined,
       },
       sharedPassword: SHARED_PASSWORD,
-      sampleLogin: { id: "02303cse001", password: SHARED_PASSWORD },
+      sampleLogins: {
+        student: { id: "02303cse001", password: SHARED_PASSWORD },
+        faculty: { id: "FAC001", password: SHARED_PASSWORD },
+      },
     }),
     { headers: { ...corsHeaders, "Content-Type": "application/json" } },
   );
