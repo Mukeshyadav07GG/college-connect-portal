@@ -18,8 +18,6 @@ export const Attendance = () => {
   const [subject, setSubject] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [marks, setMarks] = useState<Record<string, "present" | "absent">>({});
-  const [editOpen, setEditOpen] = useState(false);
-  const [editStudent, setEditStudent] = useState<Student | null>(null);
 
   useEffect(() => {
     supabase.from("profiles").select("user_id, full_name, roll_number").not("roll_number", "is", null).then(({ data }) => {
