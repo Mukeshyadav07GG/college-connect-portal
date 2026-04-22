@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -101,7 +101,7 @@ export const Attendance = () => {
                 <Button size="sm" variant={marks[s.user_id] === "present" ? "default" : "outline"} onClick={() => toggle(s.user_id)}>
                   {marks[s.user_id] === "present" ? "Present" : "Absent"}
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => { setEditStudent(s); setEditOpen(true); }}>Edit</Button>
+                <Button size="sm" variant="ghost" onClick={() => editAttendance(s)}>Edit</Button>
               </div>
             </div>
           ))}
