@@ -23,12 +23,20 @@ export const AssignmentCreate = () => {
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const refresh = () => supabase.from("assignments").select("*").order("created_at", { ascending: false }).then(({ data }) => setList(data ?? []));
+  const refresh = () => {
+    if (!user) return Promise.resolve();
+    return supabase
+      .from("assignments")
+      .select("*")
+      .eq("created_by", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setList(data ?? []));
+  };
 
   useEffect(() => {
     supabase.from("subjects").select("code, name").then(({ data }) => setSubjects((data as any) ?? []));
     refresh();
-  }, []);
+  }, [user]);
 
   const submit = async () => {
     if (!title || !subject || !user) { toast.error("Title and subject required"); return; }
