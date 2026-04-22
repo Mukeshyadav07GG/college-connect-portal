@@ -108,14 +108,6 @@ export const Attendance = () => {
           {students.length === 0 && <p className="text-center text-sm text-muted-foreground py-6">No students found.</p>}
         </div>
       </Card>
-
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="glass-card">
-          <DialogHeader><DialogTitle>Edit attendance — {editStudent?.full_name}</DialogTitle></DialogHeader>
-          <p className="text-sm text-muted-foreground">Use the Present/Absent toggle in the list, then click Save.</p>
-          <Button onClick={() => setEditOpen(false)}>Close</Button>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
