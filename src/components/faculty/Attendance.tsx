@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,8 +18,6 @@ export const Attendance = () => {
   const [subject, setSubject] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [marks, setMarks] = useState<Record<string, "present" | "absent">>({});
-  const [editOpen, setEditOpen] = useState(false);
-  const [editStudent, setEditStudent] = useState<Student | null>(null);
 
   useEffect(() => {
     supabase.from("profiles").select("user_id, full_name, roll_number").not("roll_number", "is", null).then(({ data }) => {
@@ -41,6 +39,30 @@ export const Attendance = () => {
     }));
     const { error } = await supabase.from("attendance").insert(rows);
     if (error) toast.error(error.message); else toast.success("Attendance saved");
+  };
+
+  const editAttendance = async (s: Student) => {
+    if (!subject) { toast.error("Pick a subject"); return; }
+    if (!user) { toast.error("Not signed in"); return; }
+    const { data: rec, error: fetchErr } = await supabase
+      .from("attendance")
+      .select("id, status, marked_by")
+      .eq("student_id", s.user_id)
+      .eq("subject_code", subject)
+      .eq("date", date)
+      .maybeSingle();
+    if (fetchErr) { toast.error(fetchErr.message); return; }
+    if (!rec) { toast.error("No attendance record to edit"); return; }
+    if (rec.marked_by !== user.id) { toast.error("Only the faculty who marked it can edit"); return; }
+    const next = rec.status === "present" ? "absent" : "present";
+    const { error: updErr } = await supabase
+      .from("attendance")
+      .update({ status: next })
+      .eq("id", rec.id)
+      .eq("marked_by", user.id);
+    if (updErr) { toast.error(updErr.message); return; }
+    setMarks((m) => ({ ...m, [s.user_id]: next as "present" | "absent" }));
+    toast.success("Attendance Updated");
   };
 
   return (
@@ -79,21 +101,13 @@ export const Attendance = () => {
                 <Button size="sm" variant={marks[s.user_id] === "present" ? "default" : "outline"} onClick={() => toggle(s.user_id)}>
                   {marks[s.user_id] === "present" ? "Present" : "Absent"}
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => { setEditStudent(s); setEditOpen(true); }}>Edit</Button>
+                <Button size="sm" variant="ghost" onClick={() => editAttendance(s)}>Edit</Button>
               </div>
             </div>
           ))}
           {students.length === 0 && <p className="text-center text-sm text-muted-foreground py-6">No students found.</p>}
         </div>
       </Card>
-
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="glass-card">
-          <DialogHeader><DialogTitle>Edit attendance — {editStudent?.full_name}</DialogTitle></DialogHeader>
-          <p className="text-sm text-muted-foreground">Use the Present/Absent toggle in the list, then click Save.</p>
-          <Button onClick={() => setEditOpen(false)}>Close</Button>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
