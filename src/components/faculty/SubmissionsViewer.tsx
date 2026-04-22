@@ -25,6 +25,7 @@ interface Submission {
 }
 
 export const SubmissionsViewer = () => {
+  const { user } = useAuth();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [open, setOpen] = useState<Assignment | null>(null);
@@ -32,16 +33,30 @@ export const SubmissionsViewer = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user) return;
     (async () => {
-      const { data: a } = await supabase.from("assignments").select("*").order("created_at", { ascending: false });
-      setAssignments(a ?? []);
-      const { data: s } = await supabase.from("assignment_submissions").select("assignment_id");
-      const c: Record<string, number> = {};
-      (s ?? []).forEach((row: any) => { c[row.assignment_id] = (c[row.assignment_id] ?? 0) + 1; });
-      setCounts(c);
+      const { data: a } = await supabase
+        .from("assignments")
+        .select("*")
+        .eq("created_by", user.id)
+        .order("created_at", { ascending: false });
+      const list = (a ?? []) as Assignment[];
+      setAssignments(list);
+      if (list.length) {
+        const ids = list.map((x) => x.id);
+        const { data: s } = await supabase
+          .from("assignment_submissions")
+          .select("assignment_id")
+          .in("assignment_id", ids);
+        const c: Record<string, number> = {};
+        (s ?? []).forEach((row: any) => {
+          c[row.assignment_id] = (c[row.assignment_id] ?? 0) + 1;
+        });
+        setCounts(c);
+      }
       setLoading(false);
     })();
-  }, []);
+  }, [user]);
 
   const openSubs = async (a: Assignment) => {
     setOpen(a);
