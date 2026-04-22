@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      active_sessions: {
+        Row: {
+          created_at: string
+          device_info: string | null
+          session_token: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_info?: string | null
+          session_token: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_info?: string | null
+          session_token?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           body: string
@@ -247,6 +274,42 @@ export type Database = {
           id?: string
           image_url?: string
           uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      login_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          device_info: string | null
+          id: string
+          ip_hint: string | null
+          requesting_token: string
+          status: Database["public"]["Enums"]["login_request_status"]
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          device_info?: string | null
+          id?: string
+          ip_hint?: string | null
+          requesting_token: string
+          status?: Database["public"]["Enums"]["login_request_status"]
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          device_info?: string | null
+          id?: string
+          ip_hint?: string | null
+          requesting_token?: string
+          status?: Database["public"]["Enums"]["login_request_status"]
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -488,6 +551,7 @@ export type Database = {
     }
     Enums: {
       app_role: "student" | "faculty" | "admin"
+      login_request_status: "pending" | "approved" | "denied" | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -616,6 +680,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["student", "faculty", "admin"],
+      login_request_status: ["pending", "approved", "denied", "expired"],
     },
   },
 } as const
