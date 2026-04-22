@@ -41,6 +41,30 @@ export const Attendance = () => {
     if (error) toast.error(error.message); else toast.success("Attendance saved");
   };
 
+  const editAttendance = async (s: Student) => {
+    if (!subject) { toast.error("Pick a subject"); return; }
+    if (!user) { toast.error("Not signed in"); return; }
+    const { data: rec, error: fetchErr } = await supabase
+      .from("attendance")
+      .select("id, status, marked_by")
+      .eq("student_id", s.user_id)
+      .eq("subject_code", subject)
+      .eq("date", date)
+      .maybeSingle();
+    if (fetchErr) { toast.error(fetchErr.message); return; }
+    if (!rec) { toast.error("No attendance record to edit"); return; }
+    if (rec.marked_by !== user.id) { toast.error("Only the faculty who marked it can edit"); return; }
+    const next = rec.status === "present" ? "absent" : "present";
+    const { error: updErr } = await supabase
+      .from("attendance")
+      .update({ status: next })
+      .eq("id", rec.id)
+      .eq("marked_by", user.id);
+    if (updErr) { toast.error(updErr.message); return; }
+    setMarks((m) => ({ ...m, [s.user_id]: next as "present" | "absent" }));
+    toast.success("Attendance Updated");
+  };
+
   return (
     <div className="space-y-6">
       <div>
