@@ -406,6 +406,72 @@ export type Database = {
         }
         Relationships: []
       }
+      student_documents: {
+        Row: {
+          amount: number | null
+          created_at: string
+          file_url: string
+          id: string
+          receipt_no: string | null
+          student_id: string | null
+          title: string
+          type: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          file_url: string
+          id?: string
+          receipt_no?: string | null
+          student_id?: string | null
+          title: string
+          type?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          file_url?: string
+          id?: string
+          receipt_no?: string | null
+          student_id?: string | null
+          title?: string
+          type?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      student_fees: {
+        Row: {
+          created_at: string
+          id: string
+          paid_amount: number
+          student_id: string
+          total_fee: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          paid_amount?: number
+          student_id: string
+          total_fee?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          paid_amount?: number
+          student_id?: string
+          total_fee?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       subject_notes: {
         Row: {
           created_at: string
@@ -548,6 +614,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_fee_manager: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "student" | "faculty" | "admin"
