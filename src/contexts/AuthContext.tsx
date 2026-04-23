@@ -86,27 +86,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Watch active_sessions for changes — if our token is replaced, sign out.
-  useEffect(() => {
-    if (!user || !session) return;
-    // Initial check
-    checkActiveSession(user.id, session.access_token);
-    const channel = supabase
-      .channel(`active_session_${user.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "active_sessions",
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => checkActiveSession(user.id, session.access_token)
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user?.id, session?.access_token]);
-
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
