@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { ClipboardCheck, FileText, Award, LayoutDashboard, Inbox, Users2, Wallet } from "lucide-react";
+import { ClipboardCheck, FileText, Award, LayoutDashboard, Inbox, Users2, Wallet, BookOpen } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsOverview } from "@/components/dashboard/StatsOverview";
 import { Attendance } from "@/components/faculty/Attendance";
@@ -8,6 +8,7 @@ import { ResultUpload } from "@/components/faculty/ResultUpload";
 import { SubmissionsViewer } from "@/components/faculty/SubmissionsViewer";
 import { StudentDirectory } from "@/components/faculty/StudentDirectory";
 import { FeesManager } from "@/components/fees/FeesManager";
+import { Syllabus } from "@/components/student/Syllabus";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsFeeManager } from "@/hooks/useFeeManager";
 
@@ -17,6 +18,7 @@ const baseItems = [
   { to: "/faculty/attendance", label: "Attendance", icon: <ClipboardCheck className="h-4 w-4" /> },
   { to: "/faculty/assignments", label: "Assignments", icon: <FileText className="h-4 w-4" /> },
   { to: "/faculty/submissions", label: "Submissions", icon: <Inbox className="h-4 w-4" /> },
+  { to: "/faculty/syllabus", label: "Syllabus", icon: <BookOpen className="h-4 w-4" /> },
   { to: "/faculty/results", label: "Results", icon: <Award className="h-4 w-4" /> },
 ];
 
@@ -40,6 +42,7 @@ const FacultyDashboard = () => {
         <Route path="assignments" element={<AssignmentCreate />} />
         <Route path="submissions" element={<SubmissionsViewer />} />
         <Route path="results" element={<ResultUpload />} />
+        <Route path="syllabus" element={<Syllabus />} />
         <Route path="fees" element={<FeesManager />} />
         <Route path="*" element={<Navigate to="/faculty" replace />} />
       </Routes>

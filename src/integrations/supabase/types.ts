@@ -538,6 +538,63 @@ export type Database = {
         }
         Relationships: []
       }
+      syllabus_problems: {
+        Row: {
+          created_at: string
+          file_url: string
+          id: string
+          student_id: string
+          subject_code: string
+          title: string
+          unit_number: number
+        }
+        Insert: {
+          created_at?: string
+          file_url: string
+          id?: string
+          student_id: string
+          subject_code: string
+          title: string
+          unit_number: number
+        }
+        Update: {
+          created_at?: string
+          file_url?: string
+          id?: string
+          student_id?: string
+          subject_code?: string
+          title?: string
+          unit_number?: number
+        }
+        Relationships: []
+      }
+      syllabus_units: {
+        Row: {
+          id: string
+          progress: number
+          subject_code: string
+          unit_number: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          progress?: number
+          subject_code: string
+          unit_number: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          progress?: number
+          subject_code?: string
+          unit_number?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       timetable: {
         Row: {
           branch: string
@@ -623,6 +680,10 @@ export type Database = {
           remaining_amount: number
           total_fee: number
         }[]
+      }
+      update_unit_progress: {
+        Args: { _progress: number; _subject_code: string; _unit_number: number }
+        Returns: number
       }
     }
     Enums: {
