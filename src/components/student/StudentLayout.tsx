@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   GraduationCap, User, Calendar as CalIcon, Users, FileText, BookOpen,
-  BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home, CalendarCheck, KeyRound,
+  BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home, CalendarCheck, KeyRound, Wallet,
 } from "lucide-react";
 import { FloatingChat } from "@/components/FloatingChat";
 
@@ -23,6 +23,7 @@ const NAV: NavItem[] = [
   { to: "/student/hostel", label: "Hostel", icon: Building2 },
   { to: "/student/events", label: "Events", icon: PartyPopper },
   { to: "/student/announcements", label: "Announcements", icon: Megaphone },
+  { to: "/student/fees", label: "Fees & Documents", icon: Wallet },
 ];
 
 export const StudentLayout = ({ children }: { children?: ReactNode }) => {

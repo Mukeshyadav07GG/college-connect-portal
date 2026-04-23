@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Calendar, Image, Megaphone, LayoutDashboard, Users, BookOpen, PartyPopper } from "lucide-react";
+import { Calendar, Image, Megaphone, LayoutDashboard, Users, BookOpen, PartyPopper, Wallet } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsOverview } from "@/components/dashboard/StatsOverview";
 import { TimetableEdit } from "@/components/admin/TimetableEdit";
@@ -8,6 +8,7 @@ import { AnnouncementsAdmin } from "@/components/admin/AnnouncementsAdmin";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { EventsAdmin } from "@/components/admin/EventsAdmin";
 import { SubjectsAdmin } from "@/components/admin/SubjectsAdmin";
+import { FeesManager } from "@/components/fees/FeesManager";
 import { useAuth } from "@/contexts/AuthContext";
 
 const items = [
@@ -18,6 +19,7 @@ const items = [
   { to: "/admin/events", label: "Events", icon: <PartyPopper className="h-4 w-4" /> },
   { to: "/admin/hostel", label: "Hostel", icon: <Image className="h-4 w-4" /> },
   { to: "/admin/announcements", label: "Announcements", icon: <Megaphone className="h-4 w-4" /> },
+  { to: "/admin/fees", label: "Fees & Documents", icon: <Wallet className="h-4 w-4" /> },
 ];
 
 const Overview = () => {
@@ -35,6 +37,7 @@ const AdminDashboard = () => (
       <Route path="events" element={<EventsAdmin />} />
       <Route path="hostel" element={<HostelUpload />} />
       <Route path="announcements" element={<AnnouncementsAdmin />} />
+      <Route path="fees" element={<FeesManager />} />
       <Route path="*" element={<Navigate to="/admin" replace />} />
     </Routes>
   </DashboardLayout>

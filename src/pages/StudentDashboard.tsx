@@ -10,6 +10,7 @@ import { Result } from "@/components/student/Result";
 import { HostelStudent } from "@/components/student/HostelStudent";
 import { Events } from "@/components/student/Events";
 import { Announcements } from "@/components/student/Announcements";
+import { StudentFees } from "@/components/student/StudentFees";
 
 const StudentDashboard = () => {
   return (
@@ -25,6 +26,7 @@ const StudentDashboard = () => {
         <Route path="hostel" element={<HostelStudent />} />
         <Route path="events" element={<Events />} />
         <Route path="announcements" element={<Announcements />} />
+        <Route path="fees" element={<StudentFees />} />
       </Routes>
     </StudentLayout>
   );
