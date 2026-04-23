@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { LoginApprovalGate } from "@/components/LoginApprovalGate";
 import Index from "./pages/Index.tsx";
 import StudentDashboard from "./pages/StudentDashboard.tsx";
 import FacultyDashboard from "./pages/FacultyDashboard.tsx";
@@ -23,7 +22,6 @@ const App = () => (
           <Toaster />
           <Sonner position="top-right" />
           <BrowserRouter>
-            <LoginApprovalGate />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/student/*" element={<StudentDashboard />} />
