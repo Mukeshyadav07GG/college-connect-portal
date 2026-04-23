@@ -62,25 +62,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Auto sign-out if this device's token no longer matches the approved active_session.
-  // Triggered by realtime updates on active_sessions and on initial load.
-  const checkActiveSession = async (uid: string, accessToken: string) => {
-    const { data } = await supabase
-      .from("active_sessions")
-      .select("session_token")
-      .eq("user_id", uid)
-      .maybeSingle();
-    if (data && data.session_token && data.session_token !== accessToken) {
-      // Another device was approved. Sign out.
-      await supabase.auth.signOut();
-      try {
-        // Lightweight notice; toast is mounted globally.
-        const { toast } = await import("sonner");
-        toast.error("Signed out — your account was approved on a new device");
-      } catch { /* noop */ }
-    }
-  };
-
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
