@@ -615,6 +615,15 @@ export type Database = {
         Returns: boolean
       }
       is_fee_manager: { Args: { _user_id: string }; Returns: boolean }
+      update_student_fee: {
+        Args: { _paid_amount: number; _student_id: string; _total_fee: number }
+        Returns: {
+          paid_amount: number
+          payment_diff: number
+          remaining_amount: number
+          total_fee: number
+        }[]
+      }
     }
     Enums: {
       app_role: "student" | "faculty" | "admin"
