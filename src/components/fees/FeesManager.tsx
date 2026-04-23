@@ -78,22 +78,19 @@ export const FeesManager = () => {
 
   const saveFee = async () => {
     if (!selected || !user) return;
-    if (fee.total_fee < 0 || fee.paid_amount < 0) { toast.error("Amounts must be positive"); return; }
-    if (fee.paid_amount > fee.total_fee) { toast.error("Paid cannot exceed total"); return; }
     setBusy(true);
     try {
-      const payload = {
-        student_id: selected.user_id,
-        total_fee: fee.total_fee,
-        paid_amount: fee.paid_amount,
-        updated_by: user.id,
-      };
-      const { error } = await supabase
-        .from("student_fees")
-        .upsert(payload, { onConflict: "student_id" });
+      // Server-side validated, atomic update via RPC.
+      // It re-checks role, locks the row, validates total>=paid, computes remaining + diff.
+      const { data, error } = await supabase.rpc("update_student_fee", {
+        _student_id: selected.user_id,
+        _total_fee: fee.total_fee,
+        _paid_amount: fee.paid_amount,
+      });
       if (error) throw error;
+      const result = Array.isArray(data) ? data[0] : data;
+      const diff = Number(result?.payment_diff ?? 0);
 
-      const diff = fee.paid_amount - originalPaid;
       if (diff > 0) {
         await generateAndStoreReceipt(diff);
       }
