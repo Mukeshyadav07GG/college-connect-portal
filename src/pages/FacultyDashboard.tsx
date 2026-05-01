@@ -15,6 +15,7 @@ import { useIsFeeManager } from "@/hooks/useFeeManager";
 
 const baseItems = [
   { to: "/faculty", label: "Overview", icon: <LayoutDashboard className="h-4 w-4" /> },
+  { to: "/faculty/timetable", label: "Time Table", icon: <Calendar className="h-4 w-4" /> },
   { to: "/faculty/students", label: "My Students", icon: <Users2 className="h-4 w-4" /> },
   { to: "/faculty/attendance", label: "Attendance", icon: <ClipboardCheck className="h-4 w-4" /> },
   { to: "/faculty/assignments", label: "Assignments", icon: <FileText className="h-4 w-4" /> },
