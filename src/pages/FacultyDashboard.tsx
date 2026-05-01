@@ -9,6 +9,7 @@ import { SubmissionsViewer } from "@/components/faculty/SubmissionsViewer";
 import { StudentDirectory } from "@/components/faculty/StudentDirectory";
 import { FeesManager } from "@/components/fees/FeesManager";
 import { Syllabus } from "@/components/student/Syllabus";
+import { FacultyTimetable } from "@/components/faculty/FacultyTimetable";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsFeeManager } from "@/hooks/useFeeManager";
 
