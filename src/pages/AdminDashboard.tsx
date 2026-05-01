@@ -9,6 +9,7 @@ import { UserManagement } from "@/components/admin/UserManagement";
 import { EventsAdmin } from "@/components/admin/EventsAdmin";
 import { SubjectsAdmin } from "@/components/admin/SubjectsAdmin";
 import { FeesManager } from "@/components/fees/FeesManager";
+import { ResultUpload } from "@/components/faculty/ResultUpload";
 import { useAuth } from "@/contexts/AuthContext";
 
 const items = [
