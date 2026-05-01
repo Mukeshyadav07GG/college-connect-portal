@@ -39,6 +39,7 @@ const AdminDashboard = () => (
       <Route path="events" element={<EventsAdmin />} />
       <Route path="hostel" element={<HostelUpload />} />
       <Route path="announcements" element={<AnnouncementsAdmin />} />
+      <Route path="results" element={<ResultUpload />} />
       <Route path="fees" element={<FeesManager />} />
       <Route path="*" element={<Navigate to="/admin" replace />} />
     </Routes>
