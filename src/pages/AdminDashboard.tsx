@@ -20,6 +20,7 @@ const items = [
   { to: "/admin/events", label: "Events", icon: <PartyPopper className="h-4 w-4" /> },
   { to: "/admin/hostel", label: "Hostel", icon: <Image className="h-4 w-4" /> },
   { to: "/admin/announcements", label: "Announcements", icon: <Megaphone className="h-4 w-4" /> },
+  { to: "/admin/results", label: "Results", icon: <Award className="h-4 w-4" /> },
   { to: "/admin/fees", label: "Fees & Documents", icon: <Wallet className="h-4 w-4" /> },
 ];
 
