@@ -66,10 +66,10 @@ export const ResultUpload = () => {
                 <Select value={examType} onValueChange={setExamType}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Sessional 1">Sessional 1</SelectItem>
-                    <SelectItem value="Sessional 2">Sessional 2</SelectItem>
-                    <SelectItem value="PUT">PUT</SelectItem>
-                    <SelectItem value="Semester">Semester</SelectItem>
+                    <SelectItem value="sessional1">Sessional 1</SelectItem>
+                    <SelectItem value="sessional2">Sessional 2</SelectItem>
+                    <SelectItem value="put">PUT</SelectItem>
+                    <SelectItem value="semester">Semester</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
