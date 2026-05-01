@@ -39,6 +39,7 @@ const FacultyDashboard = () => {
     <DashboardLayout title="Faculty Portal" items={items} requiredRole="faculty">
       <Routes>
         <Route index element={<Overview />} />
+        <Route path="timetable" element={<FacultyTimetable />} />
         <Route path="students" element={<StudentDirectory />} />
         <Route path="attendance" element={<Attendance />} />
         <Route path="assignments" element={<AssignmentCreate />} />
