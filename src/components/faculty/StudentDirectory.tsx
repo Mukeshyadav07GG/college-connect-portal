@@ -126,51 +126,128 @@ export const StudentDirectory = () => {
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((s, i) => (
-          <div
-            key={s.user_id}
-            className="glass rounded-2xl p-4 flex flex-col hover-lift hover-glow group animate-slide-up relative transition-all"
-            style={{ animationDelay: `${Math.min(i, 20) * 30}ms` }}
-          >
-            {unreadFrom[s.user_id] > 0 && (
-              <Badge className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground animate-pulse">
-                {unreadFrom[s.user_id]}
-              </Badge>
-            )}
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-12 w-12 rounded-full gradient-bg flex items-center justify-center text-primary-foreground font-bold shadow-glow group-hover:scale-110 transition-transform">
-                {s.full_name?.charAt(0)}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {filtered.map((s, i) => {
+          const initials = (s.full_name ?? "?")
+            .split(" ")
+            .map((p) => p[0])
+            .filter(Boolean)
+            .slice(0, 2)
+            .join("")
+            .toUpperCase();
+          const isHosteller = !!(s as any).hostel || /hostel/i.test(s.section ?? "");
+          return (
+            <div
+              key={s.user_id}
+              className="group relative rounded-2xl overflow-hidden border border-border/60 bg-card/60 backdrop-blur-sm shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-primary/40 transition-all duration-300 animate-slide-up cursor-pointer"
+              style={{ animationDelay: `${Math.min(i, 20) * 30}ms` }}
+              onClick={() => setProfileOpen(s)}
+            >
+              {/* Gradient header strip */}
+              <div className="h-14 bg-gradient-to-r from-primary/30 via-purple-500/25 to-pink-500/20" />
+
+              {unreadFrom[s.user_id] > 0 && (
+                <Badge className="absolute top-2 right-2 bg-destructive text-destructive-foreground animate-pulse z-10">
+                  {unreadFrom[s.user_id]} new
+                </Badge>
+              )}
+
+              {/* Avatar overlapping the strip */}
+              <div className="px-4 -mt-9 flex flex-col items-center text-center">
+                <div className="relative">
+                  <div className="p-[3px] rounded-full bg-gradient-to-br from-primary via-purple-500 to-pink-500 shadow-lg shadow-primary/30 transition-transform duration-300 group-hover:scale-110">
+                    {s.avatar_url ? (
+                      <img
+                        src={s.avatar_url}
+                        alt={s.full_name}
+                        className="h-[70px] w-[70px] rounded-full object-cover bg-background"
+                      />
+                    ) : (
+                      <div className="h-[70px] w-[70px] rounded-full bg-background flex items-center justify-center text-primary font-display font-bold text-xl">
+                        {initials}
+                      </div>
+                    )}
+                  </div>
+                  <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full bg-success border-2 border-background" />
+                </div>
+
+                <div className="mt-2 font-display font-semibold text-base truncate max-w-full">{s.full_name}</div>
+                <div className="text-[11px] text-muted-foreground font-mono">{s.roll_number ?? "—"}</div>
+
+                <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+                  {s.branch && <Badge variant="secondary" className="text-[10px]">{s.branch}</Badge>}
+                  {s.semester && <Badge variant="secondary" className="text-[10px]">Sem {s.semester}</Badge>}
+                  {s.section && <Badge variant="outline" className="text-[10px]">{s.section}</Badge>}
+                  <Badge
+                    variant="outline"
+                    className={`text-[10px] ${isHosteller ? "border-amber-500/50 text-amber-600 dark:text-amber-400" : "border-emerald-500/50 text-emerald-600 dark:text-emerald-400"}`}
+                  >
+                    {isHosteller ? "Hosteller" : "Day Scholar"}
+                  </Badge>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold truncate">{s.full_name}</div>
-                <div className="text-xs text-muted-foreground font-mono truncate">{s.roll_number}</div>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-1.5 text-[11px] mb-3">
-              {s.branch && <Badge variant="secondary">{s.branch}</Badge>}
-              {s.semester && <Badge variant="secondary">Sem {s.semester}</Badge>}
-              {s.section && <Badge variant="secondary">{s.section}</Badge>}
-            </div>
-            <div className="mt-auto grid grid-cols-2 gap-2 pt-2 border-t border-border/60">
-              <Button size="sm" variant="outline" className="w-full" onClick={() => setProfileOpen(s)}>
-                <UserIcon className="h-3.5 w-3.5 mr-1.5" /> Profile
-              </Button>
-              <Button size="sm" className="w-full relative" onClick={() => setChatOpen(s)}>
-                <MessageCircle className="h-3.5 w-3.5 mr-1.5" /> Message
-                {unreadFrom[s.user_id] > 0 && (
-                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] flex items-center justify-center text-destructive-foreground">
-                    {unreadFrom[s.user_id]}
-                  </span>
+
+              {/* Info rows */}
+              <div className="px-4 mt-3 space-y-1.5 text-xs">
+                {s.course && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <BookOpen className="h-3.5 w-3.5 shrink-0 text-primary" />
+                    <span className="truncate">{s.course}</span>
+                  </div>
                 )}
-              </Button>
+                {(s.year || s.semester) && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Calendar className="h-3.5 w-3.5 shrink-0 text-primary" />
+                    <span className="truncate">
+                      {[s.year, s.semester && `Sem ${s.semester}`].filter(Boolean).join(" • ")}
+                    </span>
+                  </div>
+                )}
+                {s.email && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Mail className="h-3.5 w-3.5 shrink-0 text-primary" />
+                    <span className="truncate">{s.email}</span>
+                  </div>
+                )}
+                {s.phone && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Phone className="h-3.5 w-3.5 shrink-0 text-primary" />
+                    <span className="truncate">{s.phone}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="p-3 mt-3 border-t border-border/60 grid grid-cols-2 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                  onClick={(e) => { e.stopPropagation(); setProfileOpen(s); }}
+                >
+                  <UserIcon className="h-3.5 w-3.5 mr-1.5" /> Profile
+                </Button>
+                <Button
+                  size="sm"
+                  className="w-full relative"
+                  onClick={(e) => { e.stopPropagation(); setChatOpen(s); }}
+                >
+                  <MessageCircle className="h-3.5 w-3.5 mr-1.5" /> Message
+                  {unreadFrom[s.user_id] > 0 && (
+                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] flex items-center justify-center text-destructive-foreground">
+                      {unreadFrom[s.user_id]}
+                    </span>
+                  )}
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         {filtered.length === 0 && (
           <p className="col-span-full text-center text-sm text-muted-foreground py-12">No students found.</p>
         )}
       </div>
+
 
       {/* PROFILE MODAL */}
       <Dialog open={!!profileOpen} onOpenChange={(v) => !v && setProfileOpen(null)}>
