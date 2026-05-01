@@ -16,7 +16,7 @@ export const ResultUpload = () => {
   const [list, setList] = useState<any[]>([]);
   const [studentId, setStudentId] = useState("");
   const [subject, setSubject] = useState("");
-  const [examType, setExamType] = useState("Sessional 1");
+  const [examType, setExamType] = useState("sessional1");
   const [marks, setMarks] = useState("");
   const [maxMarks, setMaxMarks] = useState("100");
 
