@@ -145,9 +145,18 @@ export const UserManagement = () => {
             {filtered.map((u) => (
               <div key={u.user_id} className="flex items-center justify-between p-3 rounded-lg hover:bg-accent gap-3 flex-wrap">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-primary-foreground font-bold text-sm">
-                    {u.full_name?.charAt(0)?.toUpperCase() ?? "?"}
-                  </div>
+                  <button onClick={() => openPhoto(u)} className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/30 hover:ring-primary transition group">
+                    {u.avatar_url ? (
+                      <img src={u.avatar_url} alt={u.full_name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-primary-foreground font-bold text-sm">
+                        {u.full_name?.charAt(0)?.toUpperCase() ?? "?"}
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                      <Camera className="h-4 w-4 text-white" />
+                    </div>
+                  </button>
                   <div className="min-w-0">
                     <p className="font-medium truncate">{u.full_name}</p>
                     <p className="text-xs text-muted-foreground truncate">
