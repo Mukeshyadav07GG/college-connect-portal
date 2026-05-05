@@ -1,9 +1,10 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Calendar, Image, Megaphone, LayoutDashboard, Users, BookOpen, PartyPopper, Wallet, Award } from "lucide-react";
+import { Calendar, Image, Megaphone, LayoutDashboard, Users, BookOpen, PartyPopper, Wallet, Award, Building2 } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsOverview } from "@/components/dashboard/StatsOverview";
 import { TimetableEdit } from "@/components/admin/TimetableEdit";
 import { HostelUpload } from "@/components/admin/HostelUpload";
+import { HostelAllocations } from "@/components/admin/HostelAllocations";
 import { AnnouncementsAdmin } from "@/components/admin/AnnouncementsAdmin";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { EventsAdmin } from "@/components/admin/EventsAdmin";
@@ -18,7 +19,8 @@ const items = [
   { to: "/admin/timetable", label: "Timetable", icon: <Calendar className="h-4 w-4" /> },
   { to: "/admin/subjects", label: "Subjects", icon: <BookOpen className="h-4 w-4" /> },
   { to: "/admin/events", label: "Events", icon: <PartyPopper className="h-4 w-4" /> },
-  { to: "/admin/hostel", label: "Hostel", icon: <Image className="h-4 w-4" /> },
+  { to: "/admin/hostel", label: "Hostel Gallery", icon: <Image className="h-4 w-4" /> },
+  { to: "/admin/hostel-allocations", label: "Hostel Allocations", icon: <Building2 className="h-4 w-4" /> },
   { to: "/admin/announcements", label: "Announcements", icon: <Megaphone className="h-4 w-4" /> },
   { to: "/admin/results", label: "Results", icon: <Award className="h-4 w-4" /> },
   { to: "/admin/fees", label: "Fees & Documents", icon: <Wallet className="h-4 w-4" /> },
