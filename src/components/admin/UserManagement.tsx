@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Users, Search } from "lucide-react";
+import { Users, Search, Camera, Trash2 } from "lucide-react";
 
 type Role = "student" | "faculty" | "admin";
 
@@ -18,6 +19,7 @@ interface UserRow {
   employee_id: string | null;
   branch: string | null;
   role: Role | null;
+  avatar_url?: string | null;
 }
 
 export const UserManagement = () => {
