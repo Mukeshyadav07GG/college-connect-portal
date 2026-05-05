@@ -60,7 +60,37 @@ Deno.serve(async (req) => {
   let studentsSkipped = 0;
   let facultyCreated = 0;
   let facultySkipped = 0;
+  let adminCreated = 0;
+  let adminSkipped = 0;
   const errors: string[] = [];
+
+  // Seed admin (ADM001) — also reset password + ensure admin role if it already exists
+  {
+    const adminId = "ADM001";
+    const email = idToEmail(adminId);
+    const existingId = existingByEmail.get(email);
+    if (existingId) {
+      await supabase.auth.admin.updateUserById(existingId, {
+        password: SHARED_PASSWORD,
+        email_confirm: true,
+        user_metadata: { full_name: "Admin User", role: "admin", employee_id: adminId },
+      });
+      await supabase.from("user_roles").upsert(
+        { user_id: existingId, role: "admin" },
+        { onConflict: "user_id,role" },
+      );
+      adminSkipped++;
+    } else {
+      const { error } = await supabase.auth.admin.createUser({
+        email,
+        password: SHARED_PASSWORD,
+        email_confirm: true,
+        user_metadata: { full_name: "Admin User", role: "admin", employee_id: adminId },
+      });
+      if (error) errors.push(`${adminId}: ${error.message}`);
+      else adminCreated++;
+    }
+  }
 
   // Seed students
   for (const s of STUDENTS) {
@@ -117,6 +147,8 @@ Deno.serve(async (req) => {
         studentsAlreadyExisted: studentsSkipped,
         facultyCreated,
         facultyAlreadyExisted: facultySkipped,
+        adminCreated,
+        adminAlreadyExisted: adminSkipped,
         errors: errors.length ? errors : undefined,
       },
       sharedPassword: SHARED_PASSWORD,
