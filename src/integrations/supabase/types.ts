@@ -253,6 +253,51 @@ export type Database = {
         }
         Relationships: []
       }
+      hostel_allocations: {
+        Row: {
+          ac_type: string
+          assigned_by: string | null
+          created_at: string
+          floor: string | null
+          hostel_name: string
+          hostel_type: string
+          id: string
+          room_no: string
+          sharing: number
+          student_id: string
+          updated_at: string
+          wifi: boolean
+        }
+        Insert: {
+          ac_type?: string
+          assigned_by?: string | null
+          created_at?: string
+          floor?: string | null
+          hostel_name: string
+          hostel_type: string
+          id?: string
+          room_no: string
+          sharing?: number
+          student_id: string
+          updated_at?: string
+          wifi?: boolean
+        }
+        Update: {
+          ac_type?: string
+          assigned_by?: string | null
+          created_at?: string
+          floor?: string | null
+          hostel_name?: string
+          hostel_type?: string
+          id?: string
+          room_no?: string
+          sharing?: number
+          student_id?: string
+          updated_at?: string
+          wifi?: boolean
+        }
+        Relationships: []
+      }
       hostel_images: {
         Row: {
           caption: string | null

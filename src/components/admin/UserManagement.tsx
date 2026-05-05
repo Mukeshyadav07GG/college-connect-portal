@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Users, Search } from "lucide-react";
+import { Users, Search, Camera, Trash2 } from "lucide-react";
 
 type Role = "student" | "faculty" | "admin";
 
@@ -18,6 +19,7 @@ interface UserRow {
   employee_id: string | null;
   branch: string | null;
   role: Role | null;
+  avatar_url?: string | null;
 }
 
 export const UserManagement = () => {
@@ -25,11 +27,15 @@ export const UserManagement = () => {
   const [filter, setFilter] = useState<"all" | Role>("all");
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(true);
+  const [photoUser, setPhotoUser] = useState<UserRow | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const load = async () => {
     setLoading(true);
     const [{ data: profs }, { data: roles }] = await Promise.all([
-      supabase.from("profiles").select("user_id, full_name, email, roll_number, employee_id, branch"),
+      supabase.from("profiles").select("user_id, full_name, email, roll_number, employee_id, branch, avatar_url"),
       supabase.from("user_roles").select("user_id, role"),
     ]);
     const roleMap = new Map<string, Role>();
@@ -50,6 +56,45 @@ export const UserManagement = () => {
     const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: newRole });
     if (error) toast.error(error.message);
     else { toast.success("Role updated"); load(); }
+  };
+
+  const openPhoto = (u: UserRow) => {
+    setPhotoUser(u);
+    setFile(null);
+    setPreview(u.avatar_url ?? null);
+  };
+
+  const onFileChange = (f: File | null) => {
+    if (!f) return;
+    if (!f.type.startsWith("image/")) { toast.error("Image files only"); return; }
+    if (f.size > 2 * 1024 * 1024) { toast.error("Max 2MB"); return; }
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
+  };
+
+  const uploadPhoto = async () => {
+    if (!photoUser || !file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() ?? "png";
+      const path = `${photoUser.user_id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+      const { error: updErr } = await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("user_id", photoUser.user_id);
+      if (updErr) throw updErr;
+      toast.success("Profile picture updated");
+      setPhotoUser(null);
+      load();
+    } catch (e: any) { toast.error(e.message); }
+    finally { setUploading(false); }
+  };
+
+  const removePhoto = async () => {
+    if (!photoUser) return;
+    const { error } = await supabase.from("profiles").update({ avatar_url: null }).eq("user_id", photoUser.user_id);
+    if (error) toast.error(error.message);
+    else { toast.success("Removed"); setPhotoUser(null); load(); }
   };
 
   const filtered = users.filter((u) => {
@@ -100,9 +145,18 @@ export const UserManagement = () => {
             {filtered.map((u) => (
               <div key={u.user_id} className="flex items-center justify-between p-3 rounded-lg hover:bg-accent gap-3 flex-wrap">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-primary-foreground font-bold text-sm">
-                    {u.full_name?.charAt(0)?.toUpperCase() ?? "?"}
-                  </div>
+                  <button onClick={() => openPhoto(u)} className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/30 hover:ring-primary transition group">
+                    {u.avatar_url ? (
+                      <img src={u.avatar_url} alt={u.full_name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-primary-foreground font-bold text-sm">
+                        {u.full_name?.charAt(0)?.toUpperCase() ?? "?"}
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                      <Camera className="h-4 w-4 text-white" />
+                    </div>
+                  </button>
                   <div className="min-w-0">
                     <p className="font-medium truncate">{u.full_name}</p>
                     <p className="text-xs text-muted-foreground truncate">
@@ -126,6 +180,37 @@ export const UserManagement = () => {
           </div>
         )}
       </Card>
+
+      <Dialog open={!!photoUser} onOpenChange={(o) => !o && setPhotoUser(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Profile picture · {photoUser?.full_name}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => { e.preventDefault(); onFileChange(e.dataTransfer.files?.[0] ?? null); }}
+              className="border-2 border-dashed rounded-xl p-6 flex flex-col items-center gap-3 text-center"
+            >
+              {preview ? (
+                <img src={preview} alt="preview" className="w-32 h-32 rounded-full object-cover ring-2 ring-primary/40" />
+              ) : (
+                <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center"><Camera className="h-8 w-8 text-muted-foreground" /></div>
+              )}
+              <p className="text-xs text-muted-foreground">Drag & drop image, or click to browse (max 2MB)</p>
+              <Input type="file" accept="image/*" onChange={(e) => onFileChange(e.target.files?.[0] ?? null)} />
+            </div>
+            <div className="flex gap-2">
+              <Button className="flex-1" onClick={uploadPhoto} disabled={!file || uploading}>
+                {uploading ? "Uploading…" : "Save photo"}
+              </Button>
+              {photoUser?.avatar_url && (
+                <Button variant="outline" className="text-destructive" onClick={removePhoto}>
+                  <Trash2 className="h-4 w-4 mr-1" /> Remove
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
