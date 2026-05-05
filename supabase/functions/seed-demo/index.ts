@@ -141,6 +141,8 @@ Deno.serve(async (req) => {
         studentsAlreadyExisted: studentsSkipped,
         facultyCreated,
         facultyAlreadyExisted: facultySkipped,
+        adminCreated,
+        adminAlreadyExisted: adminSkipped,
         errors: errors.length ? errors : undefined,
       },
       sharedPassword: SHARED_PASSWORD,
