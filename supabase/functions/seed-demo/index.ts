@@ -60,7 +60,31 @@ Deno.serve(async (req) => {
   let studentsSkipped = 0;
   let facultyCreated = 0;
   let facultySkipped = 0;
+  let adminCreated = 0;
+  let adminSkipped = 0;
   const errors: string[] = [];
+
+  // Seed admin (ADM001)
+  {
+    const adminId = "ADM001";
+    const email = idToEmail(adminId);
+    if (existingByEmail.has(email)) {
+      adminSkipped++;
+    } else {
+      const { error } = await supabase.auth.admin.createUser({
+        email,
+        password: SHARED_PASSWORD,
+        email_confirm: true,
+        user_metadata: {
+          full_name: "Admin User",
+          role: "admin",
+          employee_id: adminId,
+        },
+      });
+      if (error) errors.push(`${adminId}: ${error.message}`);
+      else adminCreated++;
+    }
+  }
 
   // Seed students
   for (const s of STUDENTS) {
