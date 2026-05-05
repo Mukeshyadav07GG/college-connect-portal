@@ -58,6 +58,45 @@ export const UserManagement = () => {
     else { toast.success("Role updated"); load(); }
   };
 
+  const openPhoto = (u: UserRow) => {
+    setPhotoUser(u);
+    setFile(null);
+    setPreview(u.avatar_url ?? null);
+  };
+
+  const onFileChange = (f: File | null) => {
+    if (!f) return;
+    if (!f.type.startsWith("image/")) { toast.error("Image files only"); return; }
+    if (f.size > 2 * 1024 * 1024) { toast.error("Max 2MB"); return; }
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
+  };
+
+  const uploadPhoto = async () => {
+    if (!photoUser || !file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() ?? "png";
+      const path = `${photoUser.user_id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+      const { error: updErr } = await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("user_id", photoUser.user_id);
+      if (updErr) throw updErr;
+      toast.success("Profile picture updated");
+      setPhotoUser(null);
+      load();
+    } catch (e: any) { toast.error(e.message); }
+    finally { setUploading(false); }
+  };
+
+  const removePhoto = async () => {
+    if (!photoUser) return;
+    const { error } = await supabase.from("profiles").update({ avatar_url: null }).eq("user_id", photoUser.user_id);
+    if (error) toast.error(error.message);
+    else { toast.success("Removed"); setPhotoUser(null); load(); }
+  };
+
   const filtered = users.filter((u) => {
     if (filter !== "all" && u.role !== filter) return false;
     if (q && !`${u.full_name} ${u.email} ${u.roll_number} ${u.employee_id}`.toLowerCase().includes(q.toLowerCase())) return false;
