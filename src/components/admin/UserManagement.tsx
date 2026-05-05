@@ -35,7 +35,7 @@ export const UserManagement = () => {
   const load = async () => {
     setLoading(true);
     const [{ data: profs }, { data: roles }] = await Promise.all([
-      supabase.from("profiles").select("user_id, full_name, email, roll_number, employee_id, branch"),
+      supabase.from("profiles").select("user_id, full_name, email, roll_number, employee_id, branch, avatar_url"),
       supabase.from("user_roles").select("user_id, role"),
     ]);
     const roleMap = new Map<string, Role>();
