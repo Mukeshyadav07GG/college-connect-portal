@@ -27,6 +27,10 @@ export const UserManagement = () => {
   const [filter, setFilter] = useState<"all" | Role>("all");
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(true);
+  const [photoUser, setPhotoUser] = useState<UserRow | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const load = async () => {
     setLoading(true);
