@@ -180,6 +180,37 @@ export const UserManagement = () => {
           </div>
         )}
       </Card>
+
+      <Dialog open={!!photoUser} onOpenChange={(o) => !o && setPhotoUser(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Profile picture · {photoUser?.full_name}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => { e.preventDefault(); onFileChange(e.dataTransfer.files?.[0] ?? null); }}
+              className="border-2 border-dashed rounded-xl p-6 flex flex-col items-center gap-3 text-center"
+            >
+              {preview ? (
+                <img src={preview} alt="preview" className="w-32 h-32 rounded-full object-cover ring-2 ring-primary/40" />
+              ) : (
+                <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center"><Camera className="h-8 w-8 text-muted-foreground" /></div>
+              )}
+              <p className="text-xs text-muted-foreground">Drag & drop image, or click to browse (max 2MB)</p>
+              <Input type="file" accept="image/*" onChange={(e) => onFileChange(e.target.files?.[0] ?? null)} />
+            </div>
+            <div className="flex gap-2">
+              <Button className="flex-1" onClick={uploadPhoto} disabled={!file || uploading}>
+                {uploading ? "Uploading…" : "Save photo"}
+              </Button>
+              {photoUser?.avatar_url && (
+                <Button variant="outline" className="text-destructive" onClick={removePhoto}>
+                  <Trash2 className="h-4 w-4 mr-1" /> Remove
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
