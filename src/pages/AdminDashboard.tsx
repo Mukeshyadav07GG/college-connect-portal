@@ -40,6 +40,7 @@ const AdminDashboard = () => (
       <Route path="subjects" element={<SubjectsAdmin />} />
       <Route path="events" element={<EventsAdmin />} />
       <Route path="hostel" element={<HostelUpload />} />
+      <Route path="hostel-allocations" element={<HostelAllocations />} />
       <Route path="announcements" element={<AnnouncementsAdmin />} />
       <Route path="results" element={<ResultUpload />} />
       <Route path="fees" element={<FeesManager />} />
