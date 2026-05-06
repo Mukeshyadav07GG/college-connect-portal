@@ -161,11 +161,6 @@ Deno.serve(async (req) => {
         adminAlreadyExisted: adminSkipped,
         errors: errors.length ? errors : undefined,
       },
-      sharedPassword: SHARED_PASSWORD,
-      sampleLogins: {
-        student: { id: "02303cse001", password: SHARED_PASSWORD },
-        faculty: { id: "FAC001", password: SHARED_PASSWORD },
-      },
     }),
     { headers: { ...corsHeaders, "Content-Type": "application/json" } },
   );
