@@ -24,6 +24,8 @@ const baseItems = [
   { to: "/faculty/submissions", label: "Submissions", icon: <Inbox className="h-4 w-4" /> },
   { to: "/faculty/syllabus", label: "Syllabus", icon: <BookOpen className="h-4 w-4" /> },
   { to: "/faculty/results", label: "Results", icon: <Award className="h-4 w-4" /> },
+  { to: "/faculty/announcements", label: "Announcements", icon: <Megaphone className="h-4 w-4" /> },
+  { to: "/faculty/events", label: "Events", icon: <PartyPopper className="h-4 w-4" /> },
 ];
 
 const Overview = () => {
