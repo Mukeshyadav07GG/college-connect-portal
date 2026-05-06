@@ -10,6 +10,8 @@ import { StudentDirectory } from "@/components/faculty/StudentDirectory";
 import { FeesManager } from "@/components/fees/FeesManager";
 import { Syllabus } from "@/components/student/Syllabus";
 import { FacultyTimetable } from "@/components/faculty/FacultyTimetable";
+import { AnnouncementsAdmin } from "@/components/admin/AnnouncementsAdmin";
+import { EventsAdmin } from "@/components/admin/EventsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsFeeManager } from "@/hooks/useFeeManager";
 
