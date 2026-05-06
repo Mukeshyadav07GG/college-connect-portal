@@ -42,8 +42,9 @@ export const FacultyDirectory = () => {
     (async () => {
       const [{ data: facs }, { data: profs }] = await Promise.all([
         supabase.from("faculty").select("*").order("name"),
-        supabase.from("profiles").select("user_id, full_name, employee_id").not("employee_id", "is", null),
+        supabase.rpc("get_profile_directory"),
       ]);
+      const profsFiltered = ((profs as any[]) ?? []).filter((p) => p.employee_id);
       const byName = new Map<string, { user_id: string; employee_id: string | null }>();
       (profs ?? []).forEach((p: any) => {
         if (p.full_name) byName.set(p.full_name.trim().toLowerCase(), { user_id: p.user_id, employee_id: p.employee_id });

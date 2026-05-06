@@ -21,8 +21,9 @@ export const FloatingChat = () => {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("user_id, full_name").neq("user_id", user.id).then(({ data }) => {
-      setContacts((data as Profile[]) ?? []);
+    supabase.rpc("get_profile_directory").then(({ data }) => {
+      const list = ((data as any[]) ?? []).filter((p) => p.user_id !== user.id);
+      setContacts(list as Profile[]);
     });
   }, [user]);
 
