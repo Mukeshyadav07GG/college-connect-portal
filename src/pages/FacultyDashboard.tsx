@@ -49,6 +49,8 @@ const FacultyDashboard = () => {
         <Route path="assignments" element={<AssignmentCreate />} />
         <Route path="submissions" element={<SubmissionsViewer />} />
         <Route path="results" element={<ResultUpload />} />
+        <Route path="announcements" element={<AnnouncementsAdmin />} />
+        <Route path="events" element={<EventsAdmin />} />
         <Route path="syllabus" element={<Syllabus />} />
         <Route path="fees" element={<FeesManager />} />
         <Route path="*" element={<Navigate to="/faculty" replace />} />
