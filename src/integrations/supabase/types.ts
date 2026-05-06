@@ -720,7 +720,48 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_directory: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          branch: string | null
+          course: string | null
+          employee_id: string | null
+          full_name: string | null
+          roll_number: string | null
+          section: string | null
+          semester: string | null
+          user_id: string | null
+          year: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          branch?: string | null
+          course?: string | null
+          employee_id?: string | null
+          full_name?: string | null
+          roll_number?: string | null
+          section?: string | null
+          semester?: string | null
+          user_id?: string | null
+          year?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          branch?: string | null
+          course?: string | null
+          employee_id?: string | null
+          full_name?: string | null
+          roll_number?: string | null
+          section?: string | null
+          semester?: string | null
+          user_id?: string | null
+          year?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_role: {
