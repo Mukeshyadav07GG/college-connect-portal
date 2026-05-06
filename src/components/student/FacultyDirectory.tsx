@@ -46,7 +46,7 @@ export const FacultyDirectory = () => {
       ]);
       const profsFiltered = ((profs as any[]) ?? []).filter((p) => p.employee_id);
       const byName = new Map<string, { user_id: string; employee_id: string | null }>();
-      (profs ?? []).forEach((p: any) => {
+      profsFiltered.forEach((p: any) => {
         if (p.full_name) byName.set(p.full_name.trim().toLowerCase(), { user_id: p.user_id, employee_id: p.employee_id });
       });
       const merged: FacultyCard[] = (facs ?? []).map((f: any) => {
