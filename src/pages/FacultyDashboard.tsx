@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { ClipboardCheck, FileText, Award, LayoutDashboard, Inbox, Users2, Wallet, BookOpen, Calendar } from "lucide-react";
+import { ClipboardCheck, FileText, Award, LayoutDashboard, Inbox, Users2, Wallet, BookOpen, Calendar, Megaphone, PartyPopper } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsOverview } from "@/components/dashboard/StatsOverview";
 import { Attendance } from "@/components/faculty/Attendance";
