@@ -40,6 +40,16 @@ const idToEmail = (id: string) => `${id.toLowerCase().replace(/[^a-z0-9]/g, "")}
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // Require pre-shared secret to invoke (prevents anonymous user creation)
+  const seedSecret = Deno.env.get("SEED_SECRET");
+  const provided = req.headers.get("x-seed-secret");
+  if (!seedSecret || provided !== seedSecret) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -150,11 +160,6 @@ Deno.serve(async (req) => {
         adminCreated,
         adminAlreadyExisted: adminSkipped,
         errors: errors.length ? errors : undefined,
-      },
-      sharedPassword: SHARED_PASSWORD,
-      sampleLogins: {
-        student: { id: "02303cse001", password: SHARED_PASSWORD },
-        faculty: { id: "FAC001", password: SHARED_PASSWORD },
       },
     }),
     { headers: { ...corsHeaders, "Content-Type": "application/json" } },

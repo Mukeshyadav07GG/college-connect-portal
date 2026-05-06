@@ -74,7 +74,7 @@ export const Assignments = () => {
         .from("assignment_submissions")
         .select("assignment_id,file_url,submitted_at")
         .eq("student_id", user.id),
-      supabase.from("profiles").select("user_id,full_name"),
+      supabase.rpc("get_profile_directory"),
     ]);
 
     setSubjects((subj as Subject[]) ?? []);
