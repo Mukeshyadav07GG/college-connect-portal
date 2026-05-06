@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { ClipboardCheck, FileText, Award, LayoutDashboard, Inbox, Users2, Wallet, BookOpen, Calendar } from "lucide-react";
+import { ClipboardCheck, FileText, Award, LayoutDashboard, Inbox, Users2, Wallet, BookOpen, Calendar, Megaphone, PartyPopper } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsOverview } from "@/components/dashboard/StatsOverview";
 import { Attendance } from "@/components/faculty/Attendance";
@@ -10,6 +10,8 @@ import { StudentDirectory } from "@/components/faculty/StudentDirectory";
 import { FeesManager } from "@/components/fees/FeesManager";
 import { Syllabus } from "@/components/student/Syllabus";
 import { FacultyTimetable } from "@/components/faculty/FacultyTimetable";
+import { AnnouncementsAdmin } from "@/components/admin/AnnouncementsAdmin";
+import { EventsAdmin } from "@/components/admin/EventsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsFeeManager } from "@/hooks/useFeeManager";
 
@@ -22,6 +24,8 @@ const baseItems = [
   { to: "/faculty/submissions", label: "Submissions", icon: <Inbox className="h-4 w-4" /> },
   { to: "/faculty/syllabus", label: "Syllabus", icon: <BookOpen className="h-4 w-4" /> },
   { to: "/faculty/results", label: "Results", icon: <Award className="h-4 w-4" /> },
+  { to: "/faculty/announcements", label: "Announcements", icon: <Megaphone className="h-4 w-4" /> },
+  { to: "/faculty/events", label: "Events", icon: <PartyPopper className="h-4 w-4" /> },
 ];
 
 const Overview = () => {
@@ -45,6 +49,8 @@ const FacultyDashboard = () => {
         <Route path="assignments" element={<AssignmentCreate />} />
         <Route path="submissions" element={<SubmissionsViewer />} />
         <Route path="results" element={<ResultUpload />} />
+        <Route path="announcements" element={<AnnouncementsAdmin />} />
+        <Route path="events" element={<EventsAdmin />} />
         <Route path="syllabus" element={<Syllabus />} />
         <Route path="fees" element={<FeesManager />} />
         <Route path="*" element={<Navigate to="/faculty" replace />} />
