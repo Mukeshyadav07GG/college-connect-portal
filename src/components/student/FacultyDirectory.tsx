@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Info, MessageSquare, Send, Loader2, Search } from "lucide-react";
+import { Info, MessageSquare, Send, Loader2, Search, Mail, Phone, DoorOpen, Clock, GraduationCap, Briefcase, BookOpen, UserCog } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
