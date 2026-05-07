@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const items = [
   { to: "/admin", label: "Overview", icon: <LayoutDashboard className="h-4 w-4" /> },
   { to: "/admin/users", label: "Users", icon: <Users className="h-4 w-4" /> },
+  { to: "/admin/faculty", label: "Faculty Profiles", icon: <UserCog className="h-4 w-4" /> },
   { to: "/admin/timetable", label: "Timetable", icon: <Calendar className="h-4 w-4" /> },
   { to: "/admin/subjects", label: "Subjects", icon: <BookOpen className="h-4 w-4" /> },
   { to: "/admin/events", label: "Events", icon: <PartyPopper className="h-4 w-4" /> },
