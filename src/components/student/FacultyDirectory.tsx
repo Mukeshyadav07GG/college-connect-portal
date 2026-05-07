@@ -110,12 +110,20 @@ export const FacultyDirectory = () => {
     return () => { supabase.removeChannel(channel); };
   }, [user, chatOpen, list]);
 
+  const rankOf = (f: FacultyCard) => {
+    const r = (f.role ?? "").toLowerCase();
+    if (r.includes("director")) return 0;
+    if (r.includes("hod") || r.includes("head")) return 1;
+    if (r.includes("coordinator") || f.name.toLowerCase().includes("nikhil")) return 2;
+    return 3;
+  };
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return list;
-    return list.filter((f) =>
+    const base = !q ? list : list.filter((f) =>
       [f.name, f.role, ...(f.subjects ?? [])].some((v) => v?.toLowerCase().includes(q))
     );
+    return [...base].sort((a, b) => rankOf(a) - rankOf(b) || a.name.localeCompare(b.name));
   }, [list, search]);
 
   return (
