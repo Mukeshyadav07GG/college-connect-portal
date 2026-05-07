@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Calendar, Image, Megaphone, LayoutDashboard, Users, BookOpen, PartyPopper, Wallet, Award, Building2 } from "lucide-react";
+import { Calendar, Image, Megaphone, LayoutDashboard, Users, BookOpen, PartyPopper, Wallet, Award, Building2, UserCog } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsOverview } from "@/components/dashboard/StatsOverview";
 import { TimetableEdit } from "@/components/admin/TimetableEdit";
@@ -11,11 +11,13 @@ import { EventsAdmin } from "@/components/admin/EventsAdmin";
 import { SubjectsAdmin } from "@/components/admin/SubjectsAdmin";
 import { FeesManager } from "@/components/fees/FeesManager";
 import { ResultUpload } from "@/components/faculty/ResultUpload";
+import { FacultyAdmin } from "@/components/admin/FacultyAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 
 const items = [
   { to: "/admin", label: "Overview", icon: <LayoutDashboard className="h-4 w-4" /> },
   { to: "/admin/users", label: "Users", icon: <Users className="h-4 w-4" /> },
+  { to: "/admin/faculty", label: "Faculty Profiles", icon: <UserCog className="h-4 w-4" /> },
   { to: "/admin/timetable", label: "Timetable", icon: <Calendar className="h-4 w-4" /> },
   { to: "/admin/subjects", label: "Subjects", icon: <BookOpen className="h-4 w-4" /> },
   { to: "/admin/events", label: "Events", icon: <PartyPopper className="h-4 w-4" /> },
@@ -36,6 +38,7 @@ const AdminDashboard = () => (
     <Routes>
       <Route index element={<Overview />} />
       <Route path="users" element={<UserManagement />} />
+      <Route path="faculty" element={<FacultyAdmin />} />
       <Route path="timetable" element={<TimetableEdit />} />
       <Route path="subjects" element={<SubjectsAdmin />} />
       <Route path="events" element={<EventsAdmin />} />
