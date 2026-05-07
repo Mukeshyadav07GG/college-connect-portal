@@ -231,6 +231,16 @@ export const FacultyDirectory = () => {
   );
 };
 
+const Field = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | null | undefined }) => (
+  <div className="flex items-start gap-2 p-2 rounded-lg hover:bg-muted/30 transition-colors">
+    <div className="text-primary mt-0.5">{icon}</div>
+    <div className="flex-1 min-w-0">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="text-sm font-medium break-words">{value || <span className="text-muted-foreground italic">—</span>}</div>
+    </div>
+  </div>
+);
+
 const InfoRow = ({ icon, label, value, href }: { icon: React.ReactNode; label: string; value: string; href?: string }) => (
   <div className="flex items-start gap-2 p-2 rounded-lg bg-muted/40">
     <div className="text-primary mt-0.5">{icon}</div>
