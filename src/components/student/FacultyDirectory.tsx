@@ -110,12 +110,20 @@ export const FacultyDirectory = () => {
     return () => { supabase.removeChannel(channel); };
   }, [user, chatOpen, list]);
 
+  const rankOf = (f: FacultyCard) => {
+    const r = (f.role ?? "").toLowerCase();
+    if (r.includes("director")) return 0;
+    if (r.includes("hod") || r.includes("head")) return 1;
+    if (r.includes("coordinator") || f.name.toLowerCase().includes("nikhil")) return 2;
+    return 3;
+  };
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return list;
-    return list.filter((f) =>
+    const base = !q ? list : list.filter((f) =>
       [f.name, f.role, ...(f.subjects ?? [])].some((v) => v?.toLowerCase().includes(q))
     );
+    return [...base].sort((a, b) => rankOf(a) - rankOf(b) || a.name.localeCompare(b.name));
   }, [list, search]);
 
   return (
@@ -132,45 +140,68 @@ export const FacultyDirectory = () => {
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filtered.map((f, i) => (
-          <div key={f.id} className="glass rounded-2xl p-5 hover-lift animate-slide-up relative" style={{ animationDelay: `${i * 50}ms` }}>
-            {f.user_id && unreadFrom[f.user_id] > 0 && (
-              <Badge className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground animate-pulse">
-                {unreadFrom[f.user_id]}
-              </Badge>
-            )}
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-primary-foreground font-bold shadow-glow">
-                {f.name.charAt(0)}
+        {filtered.map((f, i) => {
+          const rank = rankOf(f);
+          const tier = rank === 0
+            ? { label: "Director", ring: "ring-2 ring-amber-400/70 shadow-[0_0_30px_-5px_hsl(45,95%,60%,0.6)]", chip: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/40", grad: "from-amber-400/30 via-orange-500/20 to-yellow-500/10" }
+            : rank === 1
+            ? { label: "HOD", ring: "ring-2 ring-primary/60 shadow-[0_0_28px_-6px_hsl(var(--primary)/0.55)]", chip: "bg-primary/15 text-primary border-primary/40", grad: "from-primary/30 via-purple-500/20 to-blue-500/10" }
+            : rank === 2
+            ? { label: "Coordinator", ring: "ring-2 ring-emerald-400/60 shadow-[0_0_26px_-6px_hsl(150,70%,55%,0.55)]", chip: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/40", grad: "from-emerald-400/25 via-teal-500/15 to-cyan-500/10" }
+            : null;
+
+          return (
+            <div
+              key={f.id}
+              className={`glass rounded-2xl p-5 hover-lift animate-slide-up relative ${tier?.ring ?? ""}`}
+              style={{ animationDelay: `${i * 50}ms` }}
+            >
+              {tier && (
+                <div className={`absolute inset-x-0 top-0 h-1.5 rounded-t-2xl bg-gradient-to-r ${tier.grad}`} />
+              )}
+              {tier && (
+                <span className={`absolute -top-2 left-4 text-[10px] font-bold px-2 py-0.5 rounded-full border ${tier.chip} backdrop-blur`}>
+                  {tier.label}
+                </span>
+              )}
+              {f.user_id && unreadFrom[f.user_id] > 0 && (
+                <Badge className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground animate-pulse">
+                  {unreadFrom[f.user_id]}
+                </Badge>
+              )}
+              <div className="flex items-center gap-3 mb-3 mt-1">
+                <div className="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-primary-foreground font-bold shadow-glow">
+                  {f.name.charAt(0)}
+                </div>
+                <div className="min-w-0">
+                  <div className="font-display font-bold text-sm truncate">{f.name}</div>
+                  <div className="text-[11px] text-muted-foreground truncate">{f.role ?? "Faculty"}</div>
+                </div>
               </div>
-              <div className="min-w-0">
-                <div className="font-display font-bold text-sm truncate">{f.name}</div>
-                <div className="text-[11px] text-muted-foreground truncate">{f.role ?? "Faculty"}</div>
+              {f.subjects && f.subjects.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-4">
+                  {f.subjects.map((s) => (
+                    <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-mono font-bold">{s}</span>
+                  ))}
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <Button size="sm" variant="outline" onClick={() => setAboutOpen(f)} className="text-xs h-8">
+                  <Info className="w-3 h-3 mr-1" /> About
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setChatOpen(f)}
+                  className="glow-button text-xs h-8"
+                  disabled={!f.user_id}
+                  title={f.user_id ? "" : "No login account for this faculty yet"}
+                >
+                  <MessageSquare className="w-3 h-3 mr-1" /> Message
+                </Button>
               </div>
             </div>
-            {f.subjects && f.subjects.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-4">
-                {f.subjects.map((s) => (
-                  <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-mono font-bold">{s}</span>
-                ))}
-              </div>
-            )}
-            <div className="grid grid-cols-2 gap-2">
-              <Button size="sm" variant="outline" onClick={() => setAboutOpen(f)} className="text-xs h-8">
-                <Info className="w-3 h-3 mr-1" /> About
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => setChatOpen(f)}
-                className="glow-button text-xs h-8"
-                disabled={!f.user_id}
-                title={f.user_id ? "" : "No login account for this faculty yet"}
-              >
-                <MessageSquare className="w-3 h-3 mr-1" /> Message
-              </Button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* About modal */}
