@@ -64,6 +64,13 @@ export const FacultyDirectory = () => {
           role: f.role,
           subjects: f.subjects,
           description: f.description,
+          experience: f.experience ?? null,
+          qualification: f.qualification ?? null,
+          contact_email: f.contact_email ?? null,
+          mobile: f.mobile ?? null,
+          room_no: f.room_no ?? null,
+          available_time: f.available_time ?? null,
+          email: f.email ?? null,
           user_id: match?.user_id ?? null,
           employee_id: match?.employee_id ?? null,
         };
