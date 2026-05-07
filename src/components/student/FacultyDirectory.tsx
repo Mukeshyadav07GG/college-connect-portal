@@ -246,6 +246,20 @@ export const FacultyDirectory = () => {
   );
 };
 
+const InfoRow = ({ icon, label, value, href }: { icon: React.ReactNode; label: string; value: string; href?: string }) => (
+  <div className="flex items-start gap-2 p-2 rounded-lg bg-muted/40">
+    <div className="text-primary mt-0.5">{icon}</div>
+    <div className="min-w-0">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+      {href ? (
+        <a href={href} className="text-sm font-medium hover:text-primary truncate block">{value}</a>
+      ) : (
+        <div className="text-sm font-medium break-words">{value}</div>
+      )}
+    </div>
+  </div>
+);
+
 const ChatDialog = ({
   faculty, onClose, onMessageRead,
 }: { faculty: FacultyCard | null; onClose: () => void; onMessageRead: (uid: string) => void }) => {
