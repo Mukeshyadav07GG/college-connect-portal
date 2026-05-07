@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Info, MessageSquare, Send, Loader2, Search } from "lucide-react";
+import { Info, MessageSquare, Send, Loader2, Search, Mail, Phone, DoorOpen, Clock, GraduationCap, Briefcase, BookOpen, UserCog } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -15,6 +15,13 @@ interface FacultyCard {
   role: string | null;
   subjects: string[] | null;
   description: string | null;
+  experience: string | null;
+  qualification: string | null;
+  contact_email: string | null;
+  mobile: string | null;
+  room_no: string | null;
+  available_time: string | null;
+  email: string | null;
   // Linked auth profile (so we can chat with them)
   user_id: string | null;
   employee_id: string | null;
@@ -57,6 +64,13 @@ export const FacultyDirectory = () => {
           role: f.role,
           subjects: f.subjects,
           description: f.description,
+          experience: f.experience ?? null,
+          qualification: f.qualification ?? null,
+          contact_email: f.contact_email ?? null,
+          mobile: f.mobile ?? null,
+          room_no: f.room_no ?? null,
+          available_time: f.available_time ?? null,
+          email: f.email ?? null,
           user_id: match?.user_id ?? null,
           employee_id: match?.employee_id ?? null,
         };
@@ -161,35 +175,62 @@ export const FacultyDirectory = () => {
 
       {/* About modal */}
       <Dialog open={!!aboutOpen} onOpenChange={(v) => !v && setAboutOpen(null)}>
-        <DialogContent className="glass-strong max-w-md">
+        <DialogContent className="glass-strong max-w-lg max-h-[85vh] overflow-y-auto">
           {aboutOpen && (
             <>
-              <div className="flex items-center gap-4 mb-3">
+              <div className="flex items-center gap-4 mb-4">
                 <div className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center text-primary-foreground text-2xl font-bold shadow-glow">
                   {aboutOpen.name.charAt(0)}
                 </div>
                 <div>
                   <DialogTitle className="font-display text-xl">{aboutOpen.name}</DialogTitle>
-                  <p className="text-sm text-primary font-medium">{aboutOpen.role}</p>
+                  <p className="text-sm text-primary font-medium">{aboutOpen.role ?? "Faculty"}</p>
                 </div>
               </div>
-              <DialogDescription className="space-y-3 text-foreground">
-                {aboutOpen.subjects && aboutOpen.subjects.length > 0 && (
-                  <div>
-                    <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">Teaches</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {aboutOpen.subjects.map((s) => (
-                        <span key={s} className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-mono font-bold">{s}</span>
-                      ))}
+              <DialogDescription asChild>
+                <div className="space-y-4 text-foreground">
+                  {aboutOpen.subjects && aboutOpen.subjects.length > 0 && (
+                    <div>
+                      <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1.5"><BookOpen className="w-3 h-3" /> Teaches</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {aboutOpen.subjects.map((s) => (
+                          <span key={s} className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-mono font-bold">{s}</span>
+                        ))}
+                      </div>
                     </div>
+                  )}
+
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {aboutOpen.qualification && (
+                      <InfoRow icon={<GraduationCap className="w-4 h-4" />} label="Qualification" value={aboutOpen.qualification} />
+                    )}
+                    {aboutOpen.experience && (
+                      <InfoRow icon={<Briefcase className="w-4 h-4" />} label="Experience" value={aboutOpen.experience} />
+                    )}
+                    {aboutOpen.role && (
+                      <InfoRow icon={<UserCog className="w-4 h-4" />} label="Role" value={aboutOpen.role} />
+                    )}
+                    {(aboutOpen.contact_email || aboutOpen.email) && (
+                      <InfoRow icon={<Mail className="w-4 h-4" />} label="Email" value={aboutOpen.contact_email || aboutOpen.email!} href={`mailto:${aboutOpen.contact_email || aboutOpen.email}`} />
+                    )}
+                    {aboutOpen.mobile && (
+                      <InfoRow icon={<Phone className="w-4 h-4" />} label="Mobile" value={aboutOpen.mobile} href={`tel:${aboutOpen.mobile}`} />
+                    )}
+                    {aboutOpen.room_no && (
+                      <InfoRow icon={<DoorOpen className="w-4 h-4" />} label="Room" value={aboutOpen.room_no} />
+                    )}
+                    {aboutOpen.available_time && (
+                      <InfoRow icon={<Clock className="w-4 h-4" />} label="Available" value={aboutOpen.available_time} />
+                    )}
                   </div>
-                )}
-                {aboutOpen.description && (
-                  <div>
-                    <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">About</div>
-                    <p className="text-sm leading-relaxed">{aboutOpen.description}</p>
-                  </div>
-                )}
+
+                  {aboutOpen.description && (
+                    <div>
+                      <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">About</div>
+                      <p className="text-sm leading-relaxed">{aboutOpen.description}</p>
+                    </div>
+                  )}
+                </div>
               </DialogDescription>
             </>
           )}
@@ -204,6 +245,20 @@ export const FacultyDirectory = () => {
     </div>
   );
 };
+
+const InfoRow = ({ icon, label, value, href }: { icon: React.ReactNode; label: string; value: string; href?: string }) => (
+  <div className="flex items-start gap-2 p-2 rounded-lg bg-muted/40">
+    <div className="text-primary mt-0.5">{icon}</div>
+    <div className="min-w-0">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+      {href ? (
+        <a href={href} className="text-sm font-medium hover:text-primary truncate block">{value}</a>
+      ) : (
+        <div className="text-sm font-medium break-words">{value}</div>
+      )}
+    </div>
+  </div>
+);
 
 const ChatDialog = ({
   faculty, onClose, onMessageRead,
