@@ -222,33 +222,51 @@ export type Database = {
       }
       faculty: {
         Row: {
+          available_time: string | null
           avatar_url: string | null
+          contact_email: string | null
           created_at: string
           description: string | null
           email: string | null
+          experience: string | null
           id: string
+          mobile: string | null
           name: string
+          qualification: string | null
           role: string | null
+          room_no: string | null
           subjects: string[] | null
         }
         Insert: {
+          available_time?: string | null
           avatar_url?: string | null
+          contact_email?: string | null
           created_at?: string
           description?: string | null
           email?: string | null
+          experience?: string | null
           id?: string
+          mobile?: string | null
           name: string
+          qualification?: string | null
           role?: string | null
+          room_no?: string | null
           subjects?: string[] | null
         }
         Update: {
+          available_time?: string | null
           avatar_url?: string | null
+          contact_email?: string | null
           created_at?: string
           description?: string | null
           email?: string | null
+          experience?: string | null
           id?: string
+          mobile?: string | null
           name?: string
+          qualification?: string | null
           role?: string | null
+          room_no?: string | null
           subjects?: string[] | null
         }
         Relationships: []
