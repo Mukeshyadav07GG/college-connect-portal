@@ -15,6 +15,13 @@ interface FacultyCard {
   role: string | null;
   subjects: string[] | null;
   description: string | null;
+  experience: string | null;
+  qualification: string | null;
+  contact_email: string | null;
+  mobile: string | null;
+  room_no: string | null;
+  available_time: string | null;
+  email: string | null;
   // Linked auth profile (so we can chat with them)
   user_id: string | null;
   employee_id: string | null;
