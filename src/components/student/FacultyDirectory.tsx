@@ -175,63 +175,48 @@ export const FacultyDirectory = () => {
 
       {/* About modal */}
       <Dialog open={!!aboutOpen} onOpenChange={(v) => !v && setAboutOpen(null)}>
-        <DialogContent className="glass-strong max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="glass-strong sm:max-w-lg p-0 overflow-hidden animate-scale-in">
           {aboutOpen && (
             <>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center text-primary-foreground text-2xl font-bold shadow-glow">
-                  {aboutOpen.name.charAt(0)}
-                </div>
-                <div>
-                  <DialogTitle className="font-display text-xl">{aboutOpen.name}</DialogTitle>
-                  <p className="text-sm text-primary font-medium">{aboutOpen.role ?? "Faculty"}</p>
+              <div className="bg-gradient-to-br from-primary/20 via-purple-500/15 to-transparent p-5 border-b border-border">
+                <DialogTitle className="sr-only">{aboutOpen.name}</DialogTitle>
+                <DialogDescription className="sr-only">Faculty profile details</DialogDescription>
+                <div className="flex items-center gap-3">
+                  <div className="h-14 w-14 rounded-full gradient-bg flex items-center justify-center text-primary-foreground font-bold text-xl shadow-glow">
+                    {aboutOpen.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-display text-lg font-bold truncate">{aboutOpen.name}</div>
+                    <div className="text-xs text-primary font-medium truncate">{aboutOpen.role ?? "Faculty"}</div>
+                  </div>
                 </div>
               </div>
-              <DialogDescription asChild>
-                <div className="space-y-4 text-foreground">
-                  {aboutOpen.subjects && aboutOpen.subjects.length > 0 && (
-                    <div>
-                      <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1.5"><BookOpen className="w-3 h-3" /> Teaches</div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {aboutOpen.subjects.map((s) => (
-                          <span key={s} className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-mono font-bold">{s}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {aboutOpen.qualification && (
-                      <InfoRow icon={<GraduationCap className="w-4 h-4" />} label="Qualification" value={aboutOpen.qualification} />
-                    )}
-                    {aboutOpen.experience && (
-                      <InfoRow icon={<Briefcase className="w-4 h-4" />} label="Experience" value={aboutOpen.experience} />
-                    )}
-                    {aboutOpen.role && (
-                      <InfoRow icon={<UserCog className="w-4 h-4" />} label="Role" value={aboutOpen.role} />
-                    )}
-                    {(aboutOpen.contact_email || aboutOpen.email) && (
-                      <InfoRow icon={<Mail className="w-4 h-4" />} label="Email" value={aboutOpen.contact_email || aboutOpen.email!} href={`mailto:${aboutOpen.contact_email || aboutOpen.email}`} />
-                    )}
-                    {aboutOpen.mobile && (
-                      <InfoRow icon={<Phone className="w-4 h-4" />} label="Mobile" value={aboutOpen.mobile} href={`tel:${aboutOpen.mobile}`} />
-                    )}
-                    {aboutOpen.room_no && (
-                      <InfoRow icon={<DoorOpen className="w-4 h-4" />} label="Room" value={aboutOpen.room_no} />
-                    )}
-                    {aboutOpen.available_time && (
-                      <InfoRow icon={<Clock className="w-4 h-4" />} label="Available" value={aboutOpen.available_time} />
-                    )}
+              <div className="p-5 space-y-2 text-sm max-h-[60vh] overflow-y-auto">
+                <Field icon={<UserCog className="h-4 w-4" />} label="Role" value={aboutOpen.role} />
+                <Field icon={<GraduationCap className="h-4 w-4" />} label="Qualification" value={aboutOpen.qualification} />
+                <Field icon={<Briefcase className="h-4 w-4" />} label="Experience" value={aboutOpen.experience} />
+                <Field icon={<BookOpen className="h-4 w-4" />} label="Subjects" value={aboutOpen.subjects?.join(", ") ?? null} />
+                <Field icon={<Mail className="h-4 w-4" />} label="Email" value={aboutOpen.contact_email || aboutOpen.email} />
+                <Field icon={<Phone className="h-4 w-4" />} label="Mobile" value={aboutOpen.mobile} />
+                <Field icon={<DoorOpen className="h-4 w-4" />} label="Room No" value={aboutOpen.room_no} />
+                <Field icon={<Clock className="h-4 w-4" />} label="Available Time" value={aboutOpen.available_time} />
+                {aboutOpen.description && (
+                  <div className="pt-2 border-t border-border/60">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">About</div>
+                    <p className="text-sm leading-relaxed">{aboutOpen.description}</p>
                   </div>
-
-                  {aboutOpen.description && (
-                    <div>
-                      <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">About</div>
-                      <p className="text-sm leading-relaxed">{aboutOpen.description}</p>
-                    </div>
-                  )}
-                </div>
-              </DialogDescription>
+                )}
+              </div>
+              <div className="p-3 border-t border-border flex justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={() => setAboutOpen(null)}>Close</Button>
+                <Button
+                  size="sm"
+                  disabled={!aboutOpen.user_id}
+                  onClick={() => { const f = aboutOpen; setAboutOpen(null); setChatOpen(f); }}
+                >
+                  <MessageSquare className="h-4 w-4 mr-1.5" /> Message
+                </Button>
+              </div>
             </>
           )}
         </DialogContent>
