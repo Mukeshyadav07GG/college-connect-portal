@@ -11,6 +11,7 @@ import { EventsAdmin } from "@/components/admin/EventsAdmin";
 import { SubjectsAdmin } from "@/components/admin/SubjectsAdmin";
 import { FeesManager } from "@/components/fees/FeesManager";
 import { ResultUpload } from "@/components/faculty/ResultUpload";
+import { FacultyAdmin } from "@/components/admin/FacultyAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 
 const items = [
