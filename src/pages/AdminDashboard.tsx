@@ -38,6 +38,7 @@ const AdminDashboard = () => (
     <Routes>
       <Route index element={<Overview />} />
       <Route path="users" element={<UserManagement />} />
+      <Route path="faculty" element={<FacultyAdmin />} />
       <Route path="timetable" element={<TimetableEdit />} />
       <Route path="subjects" element={<SubjectsAdmin />} />
       <Route path="events" element={<EventsAdmin />} />
