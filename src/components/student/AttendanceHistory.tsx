@@ -170,7 +170,7 @@ export const AttendanceHistory = () => {
                   <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-success" /> {s.present} present</span>
                   <span className="flex items-center gap-1"><XCircle className="w-3 h-3 text-destructive" /> {s.total - s.present} absent</span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
 
