@@ -143,9 +143,11 @@ export const AttendanceHistory = () => {
           {/* Per-subject cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {stats.map((s, i) => (
-              <div
+              <button
+                type="button"
                 key={s.code}
-                className="glass rounded-2xl p-5 hover-lift hover-glow animate-slide-up"
+                onClick={() => setSelected(s)}
+                className="glass rounded-2xl p-5 hover-lift hover-glow animate-slide-up text-left w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50"
                 style={{ animationDelay: `${i * 60}ms` }}
               >
                 <div className="flex items-start justify-between mb-2">
