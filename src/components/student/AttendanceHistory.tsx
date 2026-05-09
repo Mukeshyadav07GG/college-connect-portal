@@ -142,16 +142,26 @@ export const AttendanceHistory = () => {
 
           {/* Per-subject cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {stats.map((s, i) => (
+            {stats.map((s, i) => {
+              const alert =
+                s.pct < 50 ? { cls: "blink-critical", text: "Critical! Far below 75%. Immediate action needed.", tone: "text-destructive" } :
+                s.pct < 60 ? { cls: "blink-danger",   text: "Danger: attendance is very low.",                  tone: "text-destructive" } :
+                s.pct < 70 ? { cls: "blink-warn",     text: "Warning: well below 75% requirement.",            tone: "text-warning" } :
+                s.pct < 75 ? { cls: "blink-notice",   text: "Notice: just below 75% — attend more classes.",   tone: "text-warning" } :
+                null;
+              return (
               <button
                 type="button"
                 key={s.code}
                 onClick={() => setSelected(s)}
-                className="glass rounded-2xl p-5 hover-lift hover-glow animate-slide-up text-left w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50"
+                className={`glass rounded-2xl p-5 hover-lift hover-glow animate-slide-up text-left w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 ${alert?.cls ?? ""}`}
                 style={{ animationDelay: `${i * 60}ms` }}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <span className="font-mono font-bold text-primary text-sm">{s.code}</span>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="min-w-0">
+                    <h3 className="font-display font-bold text-sm line-clamp-1">{s.name}</h3>
+                    <span className="font-mono font-bold text-primary text-xs">{s.code}</span>
+                  </div>
                   <Badge
                     variant="secondary"
                     style={{
@@ -159,19 +169,25 @@ export const AttendanceHistory = () => {
                       color: colorFor(s.pct),
                       borderColor: colorFor(s.pct),
                     }}
-                    className="border"
+                    className="border shrink-0"
                   >
                     {s.pct.toFixed(0)}%
                   </Badge>
                 </div>
-                <h3 className="font-display font-bold text-sm mb-3 line-clamp-1">{s.name}</h3>
-                <Progress value={s.pct} className="h-2 mb-2" />
+                <Progress value={s.pct} className="h-2 mb-2 mt-3" />
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-success" /> {s.present} present</span>
                   <span className="flex items-center gap-1"><XCircle className="w-3 h-3 text-destructive" /> {s.total - s.present} absent</span>
                 </div>
+                {alert && (
+                  <div className={`mt-3 flex items-center gap-1.5 text-[11px] font-medium ${alert.tone}`}>
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                    <span className="line-clamp-2">{alert.text}</span>
+                  </div>
+                )}
               </button>
-            ))}
+              );
+            })}
           </div>
 
           {/* Recent log */}
