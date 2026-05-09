@@ -25,6 +25,7 @@ export const AttendanceHistory = () => {
   const { user } = useAuth();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<SubjectStat | null>(null);
 
   useEffect(() => {
     if (!user) return;
