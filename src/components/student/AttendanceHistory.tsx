@@ -195,6 +195,84 @@ export const AttendanceHistory = () => {
           </div>
         </>
       )}
+
+      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <DialogContent className="max-w-lg">
+          {selected && (() => {
+            const subjectRows = rows.filter((r) => r.subject_code === selected.code);
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <span className="font-mono text-primary">{selected.code}</span>
+                    <span className="text-base font-normal text-muted-foreground line-clamp-1">{selected.name}</span>
+                  </DialogTitle>
+                  <DialogDescription>Subject-wise attendance details</DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4">
+                  <div className="glass rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">Attendance</span>
+                      <Badge
+                        style={{
+                          background: `${colorFor(selected.pct)}20`,
+                          color: colorFor(selected.pct),
+                          borderColor: colorFor(selected.pct),
+                        }}
+                        className="border"
+                      >
+                        {selected.pct.toFixed(1)}%
+                      </Badge>
+                    </div>
+                    <Progress value={selected.pct} className="h-2 mb-3" />
+                    <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                      <div className="rounded-lg bg-success/10 p-2">
+                        <div className="font-bold text-success text-lg">{selected.present}</div>
+                        <div className="text-muted-foreground">Present</div>
+                      </div>
+                      <div className="rounded-lg bg-destructive/10 p-2">
+                        <div className="font-bold text-destructive text-lg">{selected.total - selected.present}</div>
+                        <div className="text-muted-foreground">Absent</div>
+                      </div>
+                      <div className="rounded-lg bg-primary/10 p-2">
+                        <div className="font-bold text-primary text-lg">{selected.total}</div>
+                        <div className="text-muted-foreground">Total</div>
+                      </div>
+                    </div>
+                    {selected.pct < 75 && (
+                      <div className="mt-3 flex items-center gap-1.5 text-xs text-warning">
+                        <AlertTriangle className="w-3.5 h-3.5" />
+                        Below 75% — attend more classes to recover.
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <h3 className="font-display font-bold text-sm mb-2">Class history</h3>
+                    <div className="space-y-1 max-h-72 overflow-y-auto">
+                      {subjectRows.length === 0 ? (
+                        <p className="text-xs text-muted-foreground text-center py-4">No classes recorded.</p>
+                      ) : subjectRows.map((r, i) => (
+                        <div key={i} className="flex items-center justify-between text-sm px-3 py-2 rounded-lg hover:bg-accent/40">
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(r.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                          </span>
+                          {r.status?.toLowerCase() === "present" ? (
+                            <Badge className="bg-success/15 text-success border-success/30 border">Present</Badge>
+                          ) : (
+                            <Badge className="bg-destructive/15 text-destructive border-destructive/30 border">Absent</Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
