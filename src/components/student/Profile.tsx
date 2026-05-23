@@ -36,8 +36,33 @@ export const Profile = () => {
           <p className="text-sm text-muted-foreground">
             {profile?.branch} · Sem {profile?.semester} · Section {profile?.section}
           </p>
-        </div>
       </div>
+
+      {/* Quick access */}
+      <div className="grid sm:grid-cols-3 gap-4">
+        {[
+          { to: "/student/attendance", label: "Attendance", desc: "View class-wise attendance", icon: ClipboardCheck, color: "from-blue-500 to-cyan-500" },
+          { to: "/student/result", label: "Result", desc: "Semester results & marks", icon: Award, color: "from-amber-500 to-orange-500" },
+          { to: "/student/fees", label: "Fees", desc: "Pay & download receipts", icon: Wallet, color: "from-emerald-500 to-teal-500" },
+        ].map((q, i) => (
+          <Link
+            key={q.label}
+            to={q.to}
+            className="glass rounded-2xl p-5 hover-lift animate-slide-up group flex items-center gap-4"
+            style={{ animationDelay: `${i * 60}ms` }}
+          >
+            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${q.color} flex items-center justify-center text-white shadow-lg flex-shrink-0`}>
+              <q.icon className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-display font-bold">{q.label}</div>
+              <div className="text-xs text-muted-foreground truncate">{q.desc}</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 group-hover:text-primary transition" />
+          </Link>
+        ))}
+      </div>
+
 
       {/* Detail grid */}
       <div className="grid sm:grid-cols-2 gap-4">
