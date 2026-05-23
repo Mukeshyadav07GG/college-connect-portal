@@ -1,19 +1,21 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { ClipboardCheck, FileText, Award, LayoutDashboard, Inbox, Users2, Wallet, BookOpen, Calendar, Megaphone, PartyPopper } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsOverview } from "@/components/dashboard/StatsOverview";
-import { Attendance } from "@/components/faculty/Attendance";
-import { AssignmentCreate } from "@/components/faculty/AssignmentCreate";
-import { ResultUpload } from "@/components/faculty/ResultUpload";
-import { SubmissionsViewer } from "@/components/faculty/SubmissionsViewer";
-import { StudentDirectory } from "@/components/faculty/StudentDirectory";
-import { FeesManager } from "@/components/fees/FeesManager";
-import { Syllabus } from "@/components/student/Syllabus";
-import { FacultyTimetable } from "@/components/faculty/FacultyTimetable";
-import { AnnouncementsAdmin } from "@/components/admin/AnnouncementsAdmin";
-import { EventsAdmin } from "@/components/admin/EventsAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsFeeManager } from "@/hooks/useFeeManager";
+
+const Attendance = lazy(() => import("@/components/faculty/Attendance").then(m => ({ default: m.Attendance })));
+const AssignmentCreate = lazy(() => import("@/components/faculty/AssignmentCreate").then(m => ({ default: m.AssignmentCreate })));
+const ResultUpload = lazy(() => import("@/components/faculty/ResultUpload").then(m => ({ default: m.ResultUpload })));
+const SubmissionsViewer = lazy(() => import("@/components/faculty/SubmissionsViewer").then(m => ({ default: m.SubmissionsViewer })));
+const StudentDirectory = lazy(() => import("@/components/faculty/StudentDirectory").then(m => ({ default: m.StudentDirectory })));
+const FeesManager = lazy(() => import("@/components/fees/FeesManager").then(m => ({ default: m.FeesManager })));
+const Syllabus = lazy(() => import("@/components/student/Syllabus").then(m => ({ default: m.Syllabus })));
+const FacultyTimetable = lazy(() => import("@/components/faculty/FacultyTimetable").then(m => ({ default: m.FacultyTimetable })));
+const AnnouncementsAdmin = lazy(() => import("@/components/admin/AnnouncementsAdmin").then(m => ({ default: m.AnnouncementsAdmin })));
+const EventsAdmin = lazy(() => import("@/components/admin/EventsAdmin").then(m => ({ default: m.EventsAdmin })));
 
 const baseItems = [
   { to: "/faculty", label: "Overview", icon: <LayoutDashboard className="h-4 w-4" /> },
@@ -33,6 +35,8 @@ const Overview = () => {
   return <StatsOverview audience="faculty" name={profile?.full_name} />;
 };
 
+const Fallback = () => <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
+
 const FacultyDashboard = () => {
   const isFeeManager = useIsFeeManager();
   const items = isFeeManager
@@ -41,20 +45,22 @@ const FacultyDashboard = () => {
 
   return (
     <DashboardLayout title="Faculty Portal" items={items} requiredRole="faculty">
-      <Routes>
-        <Route index element={<Overview />} />
-        <Route path="timetable" element={<FacultyTimetable />} />
-        <Route path="students" element={<StudentDirectory />} />
-        <Route path="attendance" element={<Attendance />} />
-        <Route path="assignments" element={<AssignmentCreate />} />
-        <Route path="submissions" element={<SubmissionsViewer />} />
-        <Route path="results" element={<ResultUpload />} />
-        <Route path="announcements" element={<AnnouncementsAdmin />} />
-        <Route path="events" element={<EventsAdmin />} />
-        <Route path="syllabus" element={<Syllabus />} />
-        <Route path="fees" element={<FeesManager />} />
-        <Route path="*" element={<Navigate to="/faculty" replace />} />
-      </Routes>
+      <Suspense fallback={<Fallback />}>
+        <Routes>
+          <Route index element={<Overview />} />
+          <Route path="timetable" element={<FacultyTimetable />} />
+          <Route path="students" element={<StudentDirectory />} />
+          <Route path="attendance" element={<Attendance />} />
+          <Route path="assignments" element={<AssignmentCreate />} />
+          <Route path="submissions" element={<SubmissionsViewer />} />
+          <Route path="results" element={<ResultUpload />} />
+          <Route path="announcements" element={<AnnouncementsAdmin />} />
+          <Route path="events" element={<EventsAdmin />} />
+          <Route path="syllabus" element={<Syllabus />} />
+          <Route path="fees" element={<FeesManager />} />
+          <Route path="*" element={<Navigate to="/faculty" replace />} />
+        </Routes>
+      </Suspense>
     </DashboardLayout>
   );
 };
