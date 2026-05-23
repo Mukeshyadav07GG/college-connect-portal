@@ -36,10 +36,12 @@ export const Profile = () => {
           <p className="text-sm text-muted-foreground">
             {profile?.branch} · Sem {profile?.semester} · Section {profile?.section}
           </p>
+        </div>
       </div>
 
       {/* Quick access */}
       <div className="grid sm:grid-cols-3 gap-4">
+
         {[
           { to: "/student/attendance", label: "Attendance", desc: "View class-wise attendance", icon: ClipboardCheck, color: "from-blue-500 to-cyan-500" },
           { to: "/student/result", label: "Result", desc: "Semester results & marks", icon: Award, color: "from-amber-500 to-orange-500" },
