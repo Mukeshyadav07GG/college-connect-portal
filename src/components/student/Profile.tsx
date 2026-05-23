@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Mail, Phone, Hash, BookOpen, GraduationCap, MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
+import { User, Mail, Phone, Hash, BookOpen, GraduationCap, MapPin, ClipboardCheck, Award, Wallet, ArrowRight } from "lucide-react";
 
 export const Profile = () => {
   const { profile, user } = useAuth();
