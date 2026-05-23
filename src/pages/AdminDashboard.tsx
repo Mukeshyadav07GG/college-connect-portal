@@ -1,18 +1,20 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { Calendar, Image, Megaphone, LayoutDashboard, Users, BookOpen, PartyPopper, Wallet, Award, Building2, UserCog } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsOverview } from "@/components/dashboard/StatsOverview";
-import { TimetableEdit } from "@/components/admin/TimetableEdit";
-import { HostelUpload } from "@/components/admin/HostelUpload";
-import { HostelAllocations } from "@/components/admin/HostelAllocations";
-import { AnnouncementsAdmin } from "@/components/admin/AnnouncementsAdmin";
-import { UserManagement } from "@/components/admin/UserManagement";
-import { EventsAdmin } from "@/components/admin/EventsAdmin";
-import { SubjectsAdmin } from "@/components/admin/SubjectsAdmin";
-import { FeesManager } from "@/components/fees/FeesManager";
-import { ResultUpload } from "@/components/faculty/ResultUpload";
-import { FacultyAdmin } from "@/components/admin/FacultyAdmin";
 import { useAuth } from "@/contexts/AuthContext";
+
+const TimetableEdit = lazy(() => import("@/components/admin/TimetableEdit").then(m => ({ default: m.TimetableEdit })));
+const HostelUpload = lazy(() => import("@/components/admin/HostelUpload").then(m => ({ default: m.HostelUpload })));
+const HostelAllocations = lazy(() => import("@/components/admin/HostelAllocations").then(m => ({ default: m.HostelAllocations })));
+const AnnouncementsAdmin = lazy(() => import("@/components/admin/AnnouncementsAdmin").then(m => ({ default: m.AnnouncementsAdmin })));
+const UserManagement = lazy(() => import("@/components/admin/UserManagement").then(m => ({ default: m.UserManagement })));
+const EventsAdmin = lazy(() => import("@/components/admin/EventsAdmin").then(m => ({ default: m.EventsAdmin })));
+const SubjectsAdmin = lazy(() => import("@/components/admin/SubjectsAdmin").then(m => ({ default: m.SubjectsAdmin })));
+const FeesManager = lazy(() => import("@/components/fees/FeesManager").then(m => ({ default: m.FeesManager })));
+const ResultUpload = lazy(() => import("@/components/faculty/ResultUpload").then(m => ({ default: m.ResultUpload })));
+const FacultyAdmin = lazy(() => import("@/components/admin/FacultyAdmin").then(m => ({ default: m.FacultyAdmin })));
 
 const items = [
   { to: "/admin", label: "Overview", icon: <LayoutDashboard className="h-4 w-4" /> },
@@ -33,22 +35,26 @@ const Overview = () => {
   return <StatsOverview audience="admin" name={profile?.full_name} />;
 };
 
+const Fallback = () => <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
+
 const AdminDashboard = () => (
   <DashboardLayout title="Admin Portal" items={items} requiredRole="admin">
-    <Routes>
-      <Route index element={<Overview />} />
-      <Route path="users" element={<UserManagement />} />
-      <Route path="faculty" element={<FacultyAdmin />} />
-      <Route path="timetable" element={<TimetableEdit />} />
-      <Route path="subjects" element={<SubjectsAdmin />} />
-      <Route path="events" element={<EventsAdmin />} />
-      <Route path="hostel" element={<HostelUpload />} />
-      <Route path="hostel-allocations" element={<HostelAllocations />} />
-      <Route path="announcements" element={<AnnouncementsAdmin />} />
-      <Route path="results" element={<ResultUpload />} />
-      <Route path="fees" element={<FeesManager />} />
-      <Route path="*" element={<Navigate to="/admin" replace />} />
-    </Routes>
+    <Suspense fallback={<Fallback />}>
+      <Routes>
+        <Route index element={<Overview />} />
+        <Route path="users" element={<UserManagement />} />
+        <Route path="faculty" element={<FacultyAdmin />} />
+        <Route path="timetable" element={<TimetableEdit />} />
+        <Route path="subjects" element={<SubjectsAdmin />} />
+        <Route path="events" element={<EventsAdmin />} />
+        <Route path="hostel" element={<HostelUpload />} />
+        <Route path="hostel-allocations" element={<HostelAllocations />} />
+        <Route path="announcements" element={<AnnouncementsAdmin />} />
+        <Route path="results" element={<ResultUpload />} />
+        <Route path="fees" element={<FeesManager />} />
+        <Route path="*" element={<Navigate to="/admin" replace />} />
+      </Routes>
+    </Suspense>
   </DashboardLayout>
 );
 
