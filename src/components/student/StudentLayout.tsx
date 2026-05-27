@@ -38,6 +38,24 @@ export const StudentLayout = ({ children }: { children?: ReactNode }) => {
     if (!user || role !== "student") navigate("/");
   }, [user, role, loading, profileLoading, navigate]);
 
+  const isRoot = location.pathname === "/student" || location.pathname === "/student/";
+
+  // Esc key to go back to /student from any sub-page
+  useEffect(() => {
+    if (isRoot) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      const t = e.target as HTMLElement | null;
+      // Ignore when typing in inputs or when a dialog/sheet is open
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (document.querySelector('[role="dialog"][data-state="open"]')) return;
+      e.preventDefault();
+      navigate(-1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isRoot, navigate]);
+
   if (loading || profileLoading || !user) {
     return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
   }
