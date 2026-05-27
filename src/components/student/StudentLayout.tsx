@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   GraduationCap, User, Calendar as CalIcon, Users, FileText, BookOpen,
-  BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home, CalendarCheck, KeyRound, Wallet,
+  BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home, CalendarCheck, KeyRound, Wallet, ArrowLeft,
 } from "lucide-react";
 import { FloatingChat } from "@/components/FloatingChat";
 
@@ -37,6 +37,24 @@ export const StudentLayout = ({ children }: { children?: ReactNode }) => {
     if (loading || profileLoading) return;
     if (!user || role !== "student") navigate("/");
   }, [user, role, loading, profileLoading, navigate]);
+
+  const isRoot = location.pathname === "/student" || location.pathname === "/student/";
+
+  // Esc key to go back to /student from any sub-page
+  useEffect(() => {
+    if (isRoot) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      const t = e.target as HTMLElement | null;
+      // Ignore when typing in inputs or when a dialog/sheet is open
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (document.querySelector('[role="dialog"][data-state="open"]')) return;
+      e.preventDefault();
+      navigate(-1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isRoot, navigate]);
 
   if (loading || profileLoading || !user) {
     return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
@@ -109,6 +127,20 @@ export const StudentLayout = ({ children }: { children?: ReactNode }) => {
               </SheetTrigger>
               <SheetContent side="left" className="w-72 p-0"><SidebarContent /></SheetContent>
             </Sheet>
+            {!isRoot && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(-1)}
+                aria-label="Go back (Esc)"
+                title="Go back (Esc)"
+                className="gap-1.5 -ml-1 hover:bg-primary/10"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline text-xs">Back</span>
+                <kbd className="hidden md:inline ml-1 text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-mono">Esc</kbd>
+              </Button>
+            )}
             <div>
               <div className="text-xs text-muted-foreground">Welcome back,</div>
               <div className="font-display font-bold text-sm">{profile?.full_name ?? "Student"}</div>
