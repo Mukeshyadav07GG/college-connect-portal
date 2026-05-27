@@ -127,6 +127,20 @@ export const StudentLayout = ({ children }: { children?: ReactNode }) => {
               </SheetTrigger>
               <SheetContent side="left" className="w-72 p-0"><SidebarContent /></SheetContent>
             </Sheet>
+            {!isRoot && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(-1)}
+                aria-label="Go back (Esc)"
+                title="Go back (Esc)"
+                className="gap-1.5 -ml-1 hover:bg-primary/10"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline text-xs">Back</span>
+                <kbd className="hidden md:inline ml-1 text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-mono">Esc</kbd>
+              </Button>
+            )}
             <div>
               <div className="text-xs text-muted-foreground">Welcome back,</div>
               <div className="font-display font-bold text-sm">{profile?.full_name ?? "Student"}</div>
