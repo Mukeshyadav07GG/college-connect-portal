@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Progress } from "@/components/ui/progress";
@@ -15,6 +15,8 @@ import { SUBJECT_FULL_NAMES } from "@/data/courses";
 
 interface Row { date: string; status: string; subject_code: string; }
 
+interface WeekBreakdown { present: number; total: number; pct: number | null; }
+
 interface SubjectStat {
   code: string;
   name: string;
@@ -22,6 +24,8 @@ interface SubjectStat {
   total: number;
   pct: number;
   trend: number; // delta in percentage points: last 7 days vs previous 7 days
+  week1: WeekBreakdown; // last 7 days
+  week2: WeekBreakdown; // previous 7 days
 }
 
 const BLINK_PREF_KEY = "attendance.blinkAlerts";
@@ -36,10 +40,40 @@ export const AttendanceHistory = () => {
     const v = localStorage.getItem(BLINK_PREF_KEY);
     return v === null ? true : v === "true";
   });
+  const prefsLoaded = useRef(false);
 
+  // Load preference from account profile (syncs across devices); fall back to local.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("prefs")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      const remote = (data?.prefs as { blinkAlerts?: boolean } | null)?.blinkAlerts;
+      if (typeof remote === "boolean") setBlinkEnabled(remote);
+      prefsLoaded.current = true;
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  // Persist locally + remotely whenever it changes (after initial remote load).
   useEffect(() => {
     localStorage.setItem(BLINK_PREF_KEY, String(blinkEnabled));
-  }, [blinkEnabled]);
+    if (!user || !prefsLoaded.current) return;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("prefs")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const merged = { ...((data?.prefs as Record<string, unknown>) ?? {}), blinkAlerts: blinkEnabled };
+      await supabase.from("profiles").update({ prefs: merged }).eq("user_id", user.id);
+    })();
+  }, [blinkEnabled, user]);
 
   useEffect(() => {
     if (!user) return;
@@ -88,6 +122,8 @@ export const AttendanceHistory = () => {
         total: v.t,
         pct: v.t ? (v.p / v.t) * 100 : 0,
         trend,
+        week1: { present: v.w1p, total: v.w1t, pct: w1pct },
+        week2: { present: v.w2p, total: v.w2t, pct: w2pct },
       };
     }).sort((a, b) => a.code.localeCompare(b.code));
   }, [rows]);
@@ -108,16 +144,17 @@ export const AttendanceHistory = () => {
           <h1 className="font-display text-3xl font-bold mb-1">Attendance</h1>
           <p className="text-muted-foreground text-sm">Track your subject-wise attendance and stay above 75%.</p>
         </div>
-        <div className="glass rounded-xl px-3 py-2 flex items-center gap-2.5">
+        <div className="glass rounded-xl px-3 py-2 flex items-center gap-2.5 focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 focus-within:ring-offset-background">
           <Switch
             id="blink-toggle"
             checked={blinkEnabled}
             onCheckedChange={setBlinkEnabled}
             aria-label="Toggle blinking alert animations"
+            className="focus-visible:ring-2 focus-visible:ring-primary/60"
           />
           <Label htmlFor="blink-toggle" className="text-xs cursor-pointer">
             Blinking alerts
-            <span className="block text-[10px] text-muted-foreground font-normal">For accessibility</span>
+            <span className="block text-[10px] text-muted-foreground font-normal">Synced to your account</span>
           </Label>
         </div>
       </div>
@@ -205,12 +242,14 @@ export const AttendanceHistory = () => {
                 s.trend > 0  ? { Icon: TrendingUp,    cls: "text-success",          label: "Improving" } :
                                { Icon: TrendingDown,  cls: "text-destructive",      label: "Declining" };
 
+              const openDetails = () => setSelected(s);
+
               return (
               <button
                 type="button"
                 key={s.code}
-                onClick={() => setSelected(s)}
-                className={`glass rounded-2xl p-5 hover-lift hover-glow animate-slide-up text-left w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 ${blinkEnabled && alert?.cls ? alert.cls : ""}`}
+                onClick={openDetails}
+                className={`glass rounded-2xl p-5 hover-lift hover-glow animate-slide-up text-left w-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${blinkEnabled && alert?.cls ? alert.cls : ""}`}
                 style={{ animationDelay: `${i * 60}ms` }}
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
@@ -252,9 +291,16 @@ export const AttendanceHistory = () => {
                 {alert && (
                   <div
                     role="button"
-                    tabIndex={-1}
-                    onClick={(e) => { e.stopPropagation(); setSelected(s); }}
-                    className={`mt-3 flex items-center gap-1.5 text-[11px] font-medium rounded-lg px-2 py-1.5 hover:bg-accent/40 cursor-pointer ${alert.tone}`}
+                    tabIndex={0}
+                    onClick={(e) => { e.stopPropagation(); openDetails(); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openDetails();
+                      }
+                    }}
+                    className={`mt-3 flex items-center gap-1.5 text-[11px] font-medium rounded-lg px-2 py-1.5 hover:bg-accent/40 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${alert.tone}`}
                     aria-label={`Open ${s.code} attendance details`}
                   >
                     <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
@@ -292,6 +338,11 @@ export const AttendanceHistory = () => {
         <DialogContent className="max-w-lg">
           {selected && (() => {
             const subjectRows = rows.filter((r) => r.subject_code === selected.code);
+            const trendAbs = Math.abs(selected.trend);
+            const TrendIcon = trendAbs < 1 ? Minus : selected.trend > 0 ? TrendingUp : TrendingDown;
+            const trendCls = trendAbs < 1 ? "text-muted-foreground" : selected.trend > 0 ? "text-success" : "text-destructive";
+            const trendLabel = trendAbs < 1 ? "Steady" : selected.trend > 0 ? "Improving" : "Declining";
+            const fmtPct = (p: number | null) => p === null ? "—" : `${p.toFixed(1)}%`;
             return (
               <>
                 <DialogHeader>
@@ -337,6 +388,44 @@ export const AttendanceHistory = () => {
                         <AlertTriangle className="w-3.5 h-3.5" />
                         Below 75% — attend more classes to recover.
                       </div>
+                    )}
+                  </div>
+
+                  {/* Week-over-week breakdown */}
+                  <div className="glass rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-display font-bold text-sm flex items-center gap-1.5">
+                        <TrendingUp className="w-4 h-4 text-primary" />
+                        Week-over-week
+                      </h3>
+                      <div className={`flex items-center gap-1 text-xs font-medium ${trendCls}`}>
+                        <TrendIcon className="w-3.5 h-3.5" />
+                        <span>
+                          {trendLabel}
+                          {trendAbs >= 1 && ` ${selected.trend > 0 ? "+" : ""}${selected.trend.toFixed(1)} pts`}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-lg border border-border/60 p-3">
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Last 7 days</div>
+                        <div className="font-display text-xl font-bold">{fmtPct(selected.week1.pct)}</div>
+                        <div className="text-[11px] text-muted-foreground mt-1">
+                          {selected.week1.present} present / {selected.week1.total} total
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-border/60 p-3">
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Previous 7 days</div>
+                        <div className="font-display text-xl font-bold">{fmtPct(selected.week2.pct)}</div>
+                        <div className="text-[11px] text-muted-foreground mt-1">
+                          {selected.week2.present} present / {selected.week2.total} total
+                        </div>
+                      </div>
+                    </div>
+                    {(selected.week1.total === 0 || selected.week2.total === 0) && (
+                      <p className="text-[11px] text-muted-foreground mt-2">
+                        Not enough recent classes in one of the windows to compute a full comparison.
+                      </p>
                     )}
                   </div>
 
