@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   GraduationCap, User, Calendar as CalIcon, Users, FileText, BookOpen,
-  BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home, CalendarCheck, KeyRound, Wallet,
+  BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home, CalendarCheck, KeyRound, Wallet, ArrowLeft,
 } from "lucide-react";
 import { FloatingChat } from "@/components/FloatingChat";
 
