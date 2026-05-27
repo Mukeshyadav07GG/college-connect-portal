@@ -390,6 +390,7 @@ export type Database = {
           full_name: string
           id: string
           phone: string | null
+          prefs: Json
           roll_number: string | null
           section: string | null
           semester: string | null
@@ -410,6 +411,7 @@ export type Database = {
           full_name: string
           id?: string
           phone?: string | null
+          prefs?: Json
           roll_number?: string | null
           section?: string | null
           semester?: string | null
@@ -430,6 +432,7 @@ export type Database = {
           full_name?: string
           id?: string
           phone?: string | null
+          prefs?: Json
           roll_number?: string | null
           section?: string | null
           semester?: string | null
