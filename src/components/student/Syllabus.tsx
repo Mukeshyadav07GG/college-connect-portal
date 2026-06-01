@@ -352,8 +352,8 @@ export const Syllabus = () => {
                                       {new Date(p.created_at).toLocaleDateString()}
                                     </div>
                                   </div>
-                                  <Button size="sm" variant="ghost" asChild><a href={p.file_url} target="_blank" rel="noreferrer"><Eye className="w-3.5 h-3.5" /></a></Button>
-                                  <Button size="sm" variant="ghost" asChild><a href={p.file_url} download><Download className="w-3.5 h-3.5" /></a></Button>
+                                  <Button size="sm" variant="ghost" onClick={() => openProblem(p.file_url)}><Eye className="w-3.5 h-3.5" /></Button>
+                                  <Button size="sm" variant="ghost" onClick={() => openProblem(p.file_url, p.title)}><Download className="w-3.5 h-3.5" /></Button>
                                 </div>
                               ))}
                             </div>
