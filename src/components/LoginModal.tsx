@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GraduationCap, Users, ShieldCheck, Loader2 } from "lucide-react";
+import { GraduationCap, Users, ShieldCheck, Loader2, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { idToEmail } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -29,16 +29,35 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
   const [loading, setLoading] = useState(false);
   const [idNumber, setIdNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Reset form state whenever the modal closes
+  useEffect(() => {
+    if (!open) {
+      setIdNumber("");
+      setPassword("");
+      setShowPassword(false);
+      setLoading(false);
+      setRole("student");
+    }
+  }, [open]);
+
+  const meta = ROLE_META[role];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!idNumber.trim() || password.length < 6) {
-      toast.error("Enter your ID and a password (min 6 chars)");
+    const trimmedId = idNumber.trim();
+    if (!trimmedId) {
+      toast.error(`Please enter your ${meta.idLabel}`);
+      return;
+    }
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
       return;
     }
     setLoading(true);
     try {
-      const email = idToEmail(idNumber);
+      const email = idToEmail(trimmedId);
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
@@ -55,14 +74,19 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
       onOpenChange(false);
       setTimeout(() => navigate(ROLE_META[resolvedRole].route), 150);
     } catch (err: any) {
-      toast.error(err?.message ?? "Login failed");
+      const msg = err?.message ?? "Login failed";
+      toast.error(
+        /invalid login credentials/i.test(msg)
+          ? "Incorrect ID or password"
+          : msg
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(v) => { if (!loading) onOpenChange(v); }}>
       <DialogContent className="glass-strong sm:max-w-md p-0 overflow-hidden border-glass-border animate-scale-in">
         <div className="bg-gradient-hero p-6 text-primary-foreground">
           <DialogHeader>
@@ -87,43 +111,55 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
               })}
             </TabsList>
 
-            {(Object.keys(ROLE_META) as Role[]).map((r) => (
-              <TabsContent key={r} value={r} className="mt-0 animate-fade-in">
-                <form onSubmit={handleSubmit} className="space-y-3">
-                  <div>
-                    <Label htmlFor="idNumber">{ROLE_META[r].idLabel}</Label>
-                    <Input
-                      id="idNumber"
-                      required
-                      autoFocus
-                      value={idNumber}
-                      onChange={(e) => setIdNumber(e.target.value)}
-                      placeholder={ROLE_META[r].placeholder}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                    />
-                  </div>
+            <form onSubmit={handleSubmit} className="space-y-3 animate-fade-in" key={role}>
+              <div>
+                <Label htmlFor="login-id">{meta.idLabel}</Label>
+                <Input
+                  id="login-id"
+                  required
+                  autoFocus
+                  autoComplete="username"
+                  value={idNumber}
+                  onChange={(e) => setIdNumber(e.target.value)}
+                  placeholder={meta.placeholder}
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <Label htmlFor="login-password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="login-password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    disabled={loading}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
 
-                  <Button type="submit" disabled={loading} className="w-full glow-button">
-                    {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    Sign in as {ROLE_META[r].label}
-                  </Button>
+              <Button type="submit" disabled={loading} className="w-full glow-button">
+                {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Sign in as {meta.label}
+              </Button>
 
-                  <p className="text-center text-xs text-muted-foreground pt-1">
-                    Demo: <span className="font-mono">02303cse001</span> / <span className="font-mono">123456789</span>
-                  </p>
-                </form>
-              </TabsContent>
-            ))}
+              <p className="text-center text-xs text-muted-foreground pt-1">
+                Demo: <span className="font-mono">02303cse001</span> / <span className="font-mono">123456789</span>
+              </p>
+            </form>
           </Tabs>
         </div>
       </DialogContent>
