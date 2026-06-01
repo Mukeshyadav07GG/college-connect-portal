@@ -744,6 +744,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_faculty: {
+        Args: never
+        Returns: {
+          available_time: string | null
+          avatar_url: string | null
+          contact_email: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          experience: string | null
+          id: string
+          mobile: string | null
+          name: string
+          qualification: string | null
+          role: string | null
+          room_no: string | null
+          subjects: string[] | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "faculty"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_profile_directory: {
         Args: never
         Returns: {
