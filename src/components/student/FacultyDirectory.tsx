@@ -48,7 +48,7 @@ export const FacultyDirectory = () => {
   useEffect(() => {
     (async () => {
       const [{ data: facs }, { data: profs }] = await Promise.all([
-        supabase.from("faculty").select("*").order("name"),
+        supabase.from("faculty").select("id,name,role,subjects,description,experience,qualification,contact_email,room_no,available_time,email,avatar_url").order("name"),
         supabase.rpc("get_profile_directory"),
       ]);
       const profsFiltered = ((profs as any[]) ?? []).filter((p) => p.employee_id);
