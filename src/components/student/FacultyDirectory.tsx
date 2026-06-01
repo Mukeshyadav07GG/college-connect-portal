@@ -228,7 +228,7 @@ export const FacultyDirectory = () => {
                 <Field icon={<Briefcase className="h-4 w-4" />} label="Experience" value={aboutOpen.experience} />
                 <Field icon={<BookOpen className="h-4 w-4" />} label="Subjects" value={aboutOpen.subjects?.join(", ") ?? null} />
                 <Field icon={<Mail className="h-4 w-4" />} label="Email" value={aboutOpen.contact_email || aboutOpen.email} />
-                <Field icon={<Phone className="h-4 w-4" />} label="Mobile" value={aboutOpen.mobile} />
+                
                 <Field icon={<DoorOpen className="h-4 w-4" />} label="Room No" value={aboutOpen.room_no} />
                 <Field icon={<Clock className="h-4 w-4" />} label="Available Time" value={aboutOpen.available_time} />
                 {aboutOpen.description && (
