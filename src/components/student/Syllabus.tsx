@@ -138,6 +138,24 @@ export const Syllabus = () => {
     if (error) return toast.error(error.message);
     const a = document.createElement("a"); a.href = data.signedUrl; a.download = title; a.click();
   };
+  const openProblem = async (fileOrPath: string, downloadName?: string) => {
+    // Backward compat: if it's a full URL (legacy public bucket), open directly
+    if (/^https?:\/\//.test(fileOrPath)) {
+      window.open(fileOrPath, "_blank");
+      return;
+    }
+    const opts = downloadName ? { download: downloadName } : undefined;
+    const { data, error } = await supabase.storage
+      .from("syllabus-problems")
+      .createSignedUrl(fileOrPath, 300, opts as any);
+    if (error) return toast.error(error.message);
+    if (downloadName) {
+      const a = document.createElement("a");
+      a.href = data.signedUrl; a.download = downloadName; a.click();
+    } else {
+      window.open(data.signedUrl, "_blank");
+    }
+  };
   const removeNote = async (n: Note) => {
     await supabase.storage.from("subject-notes").remove([n.file_path]);
     await supabase.from("subject_notes").delete().eq("id", n.id);
