@@ -175,10 +175,9 @@ export const Syllabus = () => {
         contentType: probFile.type || "application/octet-stream",
       });
       if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("syllabus-problems").getPublicUrl(path);
       const { error: dErr } = await supabase.from("syllabus_problems").insert({
         student_id: user.id, subject_code: open.code, unit_number: unit,
-        title: probTitle.trim(), file_url: pub.publicUrl,
+        title: probTitle.trim(), file_url: path,
       });
       if (dErr) throw dErr;
       toast.success("Problem submitted");
