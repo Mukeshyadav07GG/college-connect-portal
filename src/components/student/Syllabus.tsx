@@ -138,6 +138,24 @@ export const Syllabus = () => {
     if (error) return toast.error(error.message);
     const a = document.createElement("a"); a.href = data.signedUrl; a.download = title; a.click();
   };
+  const openProblem = async (fileOrPath: string, downloadName?: string) => {
+    // Backward compat: if it's a full URL (legacy public bucket), open directly
+    if (/^https?:\/\//.test(fileOrPath)) {
+      window.open(fileOrPath, "_blank");
+      return;
+    }
+    const opts = downloadName ? { download: downloadName } : undefined;
+    const { data, error } = await supabase.storage
+      .from("syllabus-problems")
+      .createSignedUrl(fileOrPath, 300, opts as any);
+    if (error) return toast.error(error.message);
+    if (downloadName) {
+      const a = document.createElement("a");
+      a.href = data.signedUrl; a.download = downloadName; a.click();
+    } else {
+      window.open(data.signedUrl, "_blank");
+    }
+  };
   const removeNote = async (n: Note) => {
     await supabase.storage.from("subject-notes").remove([n.file_path]);
     await supabase.from("subject_notes").delete().eq("id", n.id);
@@ -175,10 +193,9 @@ export const Syllabus = () => {
         contentType: probFile.type || "application/octet-stream",
       });
       if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("syllabus-problems").getPublicUrl(path);
       const { error: dErr } = await supabase.from("syllabus_problems").insert({
         student_id: user.id, subject_code: open.code, unit_number: unit,
-        title: probTitle.trim(), file_url: pub.publicUrl,
+        title: probTitle.trim(), file_url: path,
       });
       if (dErr) throw dErr;
       toast.success("Problem submitted");
@@ -353,8 +370,8 @@ export const Syllabus = () => {
                                       {new Date(p.created_at).toLocaleDateString()}
                                     </div>
                                   </div>
-                                  <Button size="sm" variant="ghost" asChild><a href={p.file_url} target="_blank" rel="noreferrer"><Eye className="w-3.5 h-3.5" /></a></Button>
-                                  <Button size="sm" variant="ghost" asChild><a href={p.file_url} download><Download className="w-3.5 h-3.5" /></a></Button>
+                                  <Button size="sm" variant="ghost" onClick={() => openProblem(p.file_url)}><Eye className="w-3.5 h-3.5" /></Button>
+                                  <Button size="sm" variant="ghost" onClick={() => openProblem(p.file_url, p.title)}><Download className="w-3.5 h-3.5" /></Button>
                                 </div>
                               ))}
                             </div>

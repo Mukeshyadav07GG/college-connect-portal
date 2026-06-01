@@ -48,7 +48,7 @@ export const FacultyDirectory = () => {
   useEffect(() => {
     (async () => {
       const [{ data: facs }, { data: profs }] = await Promise.all([
-        supabase.from("faculty").select("*").order("name"),
+        supabase.from("faculty").select("id,name,role,subjects,description,experience,qualification,contact_email,room_no,available_time,email,avatar_url").order("name"),
         supabase.rpc("get_profile_directory"),
       ]);
       const profsFiltered = ((profs as any[]) ?? []).filter((p) => p.employee_id);
@@ -67,7 +67,7 @@ export const FacultyDirectory = () => {
           experience: f.experience ?? null,
           qualification: f.qualification ?? null,
           contact_email: f.contact_email ?? null,
-          mobile: f.mobile ?? null,
+          mobile: null,
           room_no: f.room_no ?? null,
           available_time: f.available_time ?? null,
           email: f.email ?? null,
@@ -228,7 +228,7 @@ export const FacultyDirectory = () => {
                 <Field icon={<Briefcase className="h-4 w-4" />} label="Experience" value={aboutOpen.experience} />
                 <Field icon={<BookOpen className="h-4 w-4" />} label="Subjects" value={aboutOpen.subjects?.join(", ") ?? null} />
                 <Field icon={<Mail className="h-4 w-4" />} label="Email" value={aboutOpen.contact_email || aboutOpen.email} />
-                <Field icon={<Phone className="h-4 w-4" />} label="Mobile" value={aboutOpen.mobile} />
+                
                 <Field icon={<DoorOpen className="h-4 w-4" />} label="Room No" value={aboutOpen.room_no} />
                 <Field icon={<Clock className="h-4 w-4" />} label="Available Time" value={aboutOpen.available_time} />
                 {aboutOpen.description && (
