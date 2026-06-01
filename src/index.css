@@ -188,7 +188,8 @@
                 border-color 320ms ease;
   }
   @media (hover: hover) {
-    .glass:hover, .glass-strong:hover {
+    .glass:hover:not([role="dialog"]):not([data-state]),
+    .glass-strong:hover:not([role="dialog"]):not([data-state]) {
       transform: translateY(-3px);
       box-shadow:
         0 14px 40px -14px hsl(var(--primary) / 0.4),
