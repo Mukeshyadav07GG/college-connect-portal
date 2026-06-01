@@ -38,7 +38,7 @@ export const FacultyAdmin = () => {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("faculty").select("*").order("name");
+    const { data, error } = await supabase.rpc("admin_list_faculty");
     if (error) toast.error(error.message);
     setRows((data as any) ?? []);
     setLoading(false);
