@@ -3,6 +3,7 @@ import getMyProfile from "./tools/get-my-profile";
 import listAnnouncements from "./tools/list-announcements";
 import listEvents from "./tools/list-events";
 import listFacultyDirectory from "./tools/list-faculty-directory";
+import uploadAssignment from "./tools/upload-assignment";
 
 // The OAuth issuer must be the direct Supabase host — never SUPABASE_URL (which
 // may be a .lovable.cloud proxy). Vite inlines VITE_SUPABASE_PROJECT_ID as a
