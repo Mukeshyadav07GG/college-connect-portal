@@ -126,18 +126,101 @@ var list_faculty_directory_default = defineTool4({
   }
 });
 
+// src/lib/mcp/tools/upload-assignment.ts
+import { createClient as createClient5 } from "npm:@supabase/supabase-js@^2.103.3";
+import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.22.0";
+import { z as z3 } from "npm:zod@^4.4.3";
+function supabaseForUser5(ctx) {
+  return createClient5(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+}
+function stripDataUrl(s) {
+  const m = s.match(/^data:[^;]+;base64,(.+)$/);
+  return m ? m[1] : s;
+}
+var upload_assignment_default = defineTool5({
+  name: "upload_assignment",
+  title: "Upload assignment",
+  description: "Create an assignment for a chosen course, branch, subject, and deadline, and attach a file. The signed-in user must be faculty or admin. The file is uploaded to the private `assignments` storage bucket.",
+  inputSchema: {
+    title: z3.string().trim().min(1).max(200).describe("Assignment title."),
+    subject_code: z3.string().trim().min(1).describe("Canonical subject code from the subjects table, e.g. `KCS-601`."),
+    course: z3.string().trim().min(1).max(100).describe("Course, e.g. `B.Tech`."),
+    branch: z3.string().trim().min(1).max(100).describe("Branch, e.g. `CSE`."),
+    deadline: z3.string().datetime({ offset: true }).describe("Deadline as an ISO 8601 timestamp with timezone."),
+    description: z3.string().trim().max(4e3).optional().describe("Optional description."),
+    file_name: z3.string().trim().min(1).max(200).describe("Original file name including extension."),
+    file_base64: z3.string().min(1).describe("File contents as base64, either raw or a `data:<mime>;base64,...` URL."),
+    file_mime: z3.string().trim().optional().describe("Optional MIME type (e.g. `application/pdf`). Defaults to `application/octet-stream`.")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  handler: async (input, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
+    }
+    const supabase = supabaseForUser5(ctx);
+    const uid = ctx.getUserId();
+    let bytes;
+    try {
+      const raw = stripDataUrl(input.file_base64);
+      const bin = atob(raw);
+      bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    } catch {
+      return { content: [{ type: "text", text: "file_base64 is not valid base64" }], isError: true };
+    }
+    const safeName = input.file_name.replace(/[^A-Za-z0-9._-]/g, "_");
+    const path = `${uid}/${Date.now()}-${safeName}`;
+    const { error: upErr } = await supabase.storage.from("assignments").upload(path, bytes, {
+      contentType: input.file_mime || "application/octet-stream",
+      upsert: false
+    });
+    if (upErr) {
+      return { content: [{ type: "text", text: `Upload failed: ${upErr.message}` }], isError: true };
+    }
+    const contextLine = `Course: ${input.course} | Branch: ${input.branch}`;
+    const fullDescription = input.description ? `${contextLine}
+
+${input.description}` : contextLine;
+    const { data: row, error: insErr } = await supabase.from("assignments").insert({
+      title: input.title,
+      description: fullDescription,
+      subject_code: input.subject_code,
+      deadline: input.deadline,
+      file_url: path,
+      created_by: uid
+    }).select().single();
+    if (insErr) {
+      await supabase.storage.from("assignments").remove([path]);
+      return { content: [{ type: "text", text: `Insert failed: ${insErr.message}` }], isError: true };
+    }
+    const payload = { assignment: row, storage_path: path };
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Assignment "${row.title}" created for ${input.subject_code} (${input.course} / ${input.branch}), due ${input.deadline}.`
+        }
+      ],
+      structuredContent: payload
+    };
+  }
+});
+
 // src/lib/mcp/index.ts
 var projectRef = "tixakhgfncvwsfyakdyy";
 var mcp_default = defineMcp({
   name: "knmiet-erp-mcp",
   title: "KNMIET ERP",
   version: "0.1.0",
-  instructions: "Tools for the KNMIET student, faculty, and admin portal. Use `get_my_profile` to see the signed-in user, `list_announcements` and `list_events` for portal updates, and `list_faculty_directory` to browse faculty.",
+  instructions: "Tools for the KNMIET student, faculty, and admin portal. Use `get_my_profile` to see the signed-in user, `list_announcements` and `list_events` for portal updates, `list_faculty_directory` to browse faculty, and `upload_assignment` (faculty/admin) to create an assignment for a chosen course, branch, subject, and deadline with a file attachment.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"
   }),
-  tools: [get_my_profile_default, list_announcements_default, list_events_default, list_faculty_directory_default]
+  tools: [get_my_profile_default, list_announcements_default, list_events_default, list_faculty_directory_default, upload_assignment_default]
 });
 
 // lovable-mcp-supabase-entry.ts
