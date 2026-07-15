@@ -12,6 +12,8 @@ const StudentDashboard = lazy(() => import("./pages/StudentDashboard.tsx"));
 const FacultyDashboard = lazy(() => import("./pages/FacultyDashboard.tsx"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard.tsx"));
 const ChangePassword = lazy(() => import("./pages/ChangePassword.tsx"));
+const Login = lazy(() => import("./pages/Login.tsx"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
@@ -35,6 +37,8 @@ const App = () => (
                 <Route path="/faculty/*" element={<FacultyDashboard />} />
                 <Route path="/admin/*" element={<AdminDashboard />} />
                 <Route path="/change-password" element={<ChangePassword />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
