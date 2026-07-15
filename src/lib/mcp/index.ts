@@ -15,10 +15,10 @@ export default defineMcp({
   title: "KNMIET ERP",
   version: "0.1.0",
   instructions:
-    "Tools for the KNMIET student, faculty, and admin portal. Use `get_my_profile` to see the signed-in user, `list_announcements` and `list_events` for portal updates, and `list_faculty_directory` to browse faculty.",
+    "Tools for the KNMIET student, faculty, and admin portal. Use `get_my_profile` to see the signed-in user, `list_announcements` and `list_events` for portal updates, `list_faculty_directory` to browse faculty, and `upload_assignment` (faculty/admin) to create an assignment for a chosen course, branch, subject, and deadline with a file attachment.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [getMyProfile, listAnnouncements, listEvents, listFacultyDirectory],
+  tools: [getMyProfile, listAnnouncements, listEvents, listFacultyDirectory, uploadAssignment],
 });
