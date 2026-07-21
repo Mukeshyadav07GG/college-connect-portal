@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { GraduationCap, Menu, Moon, Sun, LogOut, LayoutDashboard } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { LoginModal } from "./LoginModal";
 import { useNavigate } from "react-router-dom";
+
+const LoginModal = lazy(() => import("./LoginModal").then(m => ({ default: m.LoginModal })));
 
 const NAV_LINKS = [
   { label: "Home", id: "hero" },
@@ -103,7 +104,11 @@ export const Navbar = () => {
           </div>
         </div>
       </header>
-      <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />
+      {loginOpen && (
+        <Suspense fallback={null}>
+          <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />
+        </Suspense>
+      )}
     </>
   );
 };
