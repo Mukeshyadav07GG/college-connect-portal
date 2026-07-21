@@ -8,7 +8,7 @@ export const Hero = () => {
   return (
     <section id="hero" className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
       <div className="absolute inset-0 -z-10">
-        <img src={heroImg} alt="KNMIET Modinagar campus at golden hour" width={1920} height={1080} className="w-full h-full object-cover opacity-30 dark:opacity-20" />
+        <img src={heroImg} alt="KNMIET Modinagar campus at golden hour" width={1920} height={1080} fetchPriority="high" decoding="async" className="w-full h-full object-cover opacity-30 dark:opacity-20" />
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/80 to-background" />
       </div>
 
