@@ -32,10 +32,10 @@ const createUploadUrl = asyncHandler(async (req, res) => {
 
 /** POST /api/storage/sign-download */
 const createDownloadUrl = asyncHandler(async (req, res) => {
-  const { bucket, path, expiresIn } = req.body || {};
+  const { bucket, path, expiresIn, download } = req.body || {};
   assertBucket(bucket);
   if (!path) throw new HttpError(400, "path is required");
-  const url = await signDownload(bucket, path, Number(expiresIn) || 3600);
+  const url = await signDownload(bucket, path, Number(expiresIn) || 3600, download || undefined);
   res.json({ signedUrl: url });
 });
 

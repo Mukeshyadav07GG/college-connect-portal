@@ -36,8 +36,14 @@ async function signUpload(prefix, path, contentType) {
   return getSignedUrl(s3, cmd, { expiresIn: 900 });
 }
 
-async function signDownload(prefix, path, expiresIn = 3600) {
-  const cmd = new GetObjectCommand({ Bucket: BUCKET, Key: keyFor(prefix, path) });
+async function signDownload(prefix, path, expiresIn = 3600, downloadName) {
+  const cmd = new GetObjectCommand({
+    Bucket: BUCKET,
+    Key: keyFor(prefix, path),
+    ...(downloadName
+      ? { ResponseContentDisposition: `attachment; filename="${downloadName}"` }
+      : {}),
+  });
   return getSignedUrl(s3, cmd, { expiresIn });
 }
 
