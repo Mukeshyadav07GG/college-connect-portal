@@ -1,24 +1,14 @@
-const mongoose = require("mongoose");
 const { models } = require("../models");
 const { readFilter, assertWrite } = require("../middleware/policy");
 const { asyncHandler, HttpError } = require("../middleware/error");
 const { emitChange } = require("../realtime");
 
-const OID = mongoose.Types.ObjectId;
-
-const toId = (value) => (OID.isValid(String(value)) ? new OID(String(value)) : value);
-
 /** Maps the public column name to the stored one. */
 const col = (name) => (name === "id" ? "_id" : name);
 
-function castValue(column, value) {
-  if (column === "id" || column.endsWith("_id_oid")) return toId(value);
-  return value;
-}
-
 function buildCondition(op, column, value) {
   const field = col(column);
-  const v = column === "id" ? toId(value) : value;
+  const v = value;
   switch (op) {
     case "eq":
       return { [field]: v };
@@ -33,7 +23,7 @@ function buildCondition(op, column, value) {
     case "lte":
       return { [field]: { $lte: v } };
     case "in":
-      return { [field]: { $in: (Array.isArray(v) ? v : [v]).map((x) => castValue(column, x)) } };
+      return { [field]: { $in: Array.isArray(v) ? v : [v] } };
     case "is":
       return { [field]: v === null ? { $in: [null, undefined] } : v };
     case "like":
