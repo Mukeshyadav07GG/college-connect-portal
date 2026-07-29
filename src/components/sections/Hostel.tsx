@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Check, Image as ImageIcon } from "lucide-react";
 import { HOSTEL_FACILITIES } from "@/data/courses";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/api/client";
 
 export const Hostel = () => {
   const [images, setImages] = useState<{ id: string; image_url: string; caption: string | null }[]>([]);

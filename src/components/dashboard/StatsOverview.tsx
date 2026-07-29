@@ -1,5 +1,5 @@
 import { useEffect, useState, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/api/client";
 import { Card } from "@/components/ui/card";
 import { Users, GraduationCap, FileText, Megaphone, BookOpen, Calendar, ClipboardCheck, Award } from "lucide-react";
 

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/api/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";

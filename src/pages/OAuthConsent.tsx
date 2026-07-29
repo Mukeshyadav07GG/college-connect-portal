@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 import { Loader2, ShieldCheck, X } from "lucide-react";
 

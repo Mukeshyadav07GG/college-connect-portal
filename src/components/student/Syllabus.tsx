@@ -8,7 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, FileUp, Download, Eye, Loader2, Trash2, Save, MessageSquare } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/api/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -85,7 +85,7 @@ export const Syllabus = () => {
     if (isFaculty && problemsRows.length) {
       const ids = [...new Set(problemsRows.map((x) => x.student_id))];
       const { data: profs } = await supabase.from("profiles").select("user_id, full_name, roll_number").in("user_id", ids);
-      const nameMap = new Map((profs ?? []).map((x: any) => [x.user_id, `${x.full_name}${x.roll_number ? ` (${x.roll_number})` : ""}`]));
+      const nameMap = new Map<string, string>((profs ?? []).map((x: any) => [x.user_id, `${x.full_name}${x.roll_number ? ` (${x.roll_number})` : ""}`]));
       setProblems(problemsRows.map((r) => ({ ...r, student_name: nameMap.get(r.student_id) ?? "Unknown" })));
     } else {
       setProblems(problemsRows);

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GraduationCap, Users, ShieldCheck, Loader2, Eye, EyeOff } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/api/client";
 import { idToEmail } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 

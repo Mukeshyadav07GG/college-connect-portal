@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/api/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -73,7 +73,7 @@ export const SubmissionsViewer = () => {
         .from("profiles")
         .select("user_id, full_name, roll_number")
         .in("user_id", ids);
-      const map = new Map((profs ?? []).map((p: any) => [p.user_id, p]));
+      const map = new Map<string, any>((profs ?? []).map((p: any) => [p.user_id, p]));
       rows.forEach((r) => {
         const p = map.get(r.student_id);
         r.student_name = p?.full_name;
