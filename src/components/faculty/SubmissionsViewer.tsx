@@ -73,7 +73,7 @@ export const SubmissionsViewer = () => {
         .from("profiles")
         .select("user_id, full_name, roll_number")
         .in("user_id", ids);
-      const map = new Map((profs ?? []).map((p: any) => [p.user_id, p]));
+      const map = new Map<string, any>((profs ?? []).map((p: any) => [p.user_id, p]));
       rows.forEach((r) => {
         const p = map.get(r.student_id);
         r.student_name = p?.full_name;
