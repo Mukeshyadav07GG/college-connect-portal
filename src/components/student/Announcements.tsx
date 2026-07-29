@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Megaphone, Calendar } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/api/client";
 
 interface Announcement {
   id: string;

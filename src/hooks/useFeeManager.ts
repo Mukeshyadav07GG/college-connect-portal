@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/api/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 const COORDINATOR_IDS = ["FAC003", "FAC008"];
