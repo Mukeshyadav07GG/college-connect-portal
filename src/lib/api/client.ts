@@ -25,13 +25,21 @@ export interface ApiResult<T = any> {
 
 /* ------------------------------------------------------------------ session */
 
-type Session = {
+export interface User {
+  id: string;
+  email: string;
+  user_metadata: Record<string, any>;
+  role?: string;
+}
+export interface Session {
   access_token: string;
+  token_type?: string;
   expires_at: number;
-  user: { id: string; email: string; user_metadata: Record<string, any>; role?: string };
-} | null;
+  user: User;
+}
+type MaybeSession = Session | null;
 
-let currentSession: Session = null;
+let currentSession: MaybeSession = null;
 try {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) currentSession = JSON.parse(raw);
@@ -39,10 +47,10 @@ try {
   currentSession = null;
 }
 
-type AuthListener = (event: string, session: Session) => void;
+type AuthListener = (event: string, session: MaybeSession) => void;
 const authListeners = new Set<AuthListener>();
 
-const setSession = (session: Session, event: string) => {
+const setSession = (session: MaybeSession, event: string) => {
   currentSession = session;
   try {
     if (session) localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
@@ -148,7 +156,7 @@ class QueryBuilder<T = any> implements PromiseLike<ApiResult<T>> {
     return this;
   }
 
-  order(column: string, opts?: { ascending?: boolean }) {
+  order(column: string, opts?: { ascending?: boolean; nullsFirst?: boolean }) {
     this.orders.push({ column, ascending: opts?.ascending !== false });
     return this;
   }
@@ -280,7 +288,7 @@ export const supabase = {
   auth: {
     async getSession() {
       if (!currentSession) return { data: { session: null }, error: null };
-      const res = await request<{ session: Session }>("/api/auth/session");
+      const res = await request<{ session: MaybeSession }>("/api/auth/session");
       if (res.error || !res.data?.session) {
         setSession(null, "SIGNED_OUT");
         return { data: { session: null }, error: null };
@@ -295,7 +303,7 @@ export const supabase = {
     },
 
     async signInWithPassword({ email, password }: { email: string; password: string }) {
-      const res = await request<{ session: Session }>("/api/auth/login", {
+      const res = await request<{ session: MaybeSession }>("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
@@ -308,7 +316,7 @@ export const supabase = {
     },
 
     async signUp({ email, password, options }: { email: string; password: string; options?: any }) {
-      const res = await request<{ session: Session }>("/api/auth/register", {
+      const res = await request<{ session: MaybeSession }>("/api/auth/register", {
         method: "POST",
         body: JSON.stringify({ email, password, options }),
       });
@@ -344,7 +352,9 @@ export const supabase = {
       return {
         data: {
           subscription: {
-            unsubscribe: () => authListeners.delete(cb),
+            unsubscribe: () => {
+              authListeners.delete(cb);
+            },
           },
         },
       };
