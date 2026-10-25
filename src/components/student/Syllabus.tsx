@@ -8,7 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, FileUp, Download, Eye, Loader2, Trash2, Save, MessageSquare } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { supabase } from "@/lib/api/client";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 

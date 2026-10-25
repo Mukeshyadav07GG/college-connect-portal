@@ -4,7 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Wallet, FileText, Download, Eye, Receipt, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/api/client";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface FeeRow { total_fee: number; paid_amount: number; updated_at: string }
