@@ -18,6 +18,7 @@ export const Attendance = () => {
   const [subject, setSubject] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [marks, setMarks] = useState<Record<string, "present" | "absent">>({});
+  const [gps, setGps] = useState<Record<string, number>>({});
 
   useEffect(() => {
     supabase.from("profiles").select("user_id, full_name, roll_number").not("roll_number", "is", null).then(({ data }) => {
@@ -28,15 +29,30 @@ export const Attendance = () => {
     });
   }, []);
 
+  // Load GPS self check-ins for the selected subject/date
+  useEffect(() => {
+    if (!subject) { setGps({}); return; }
+    supabase.from("attendance").select("student_id, distance_meters, location_status")
+      .eq("subject_code", subject).eq("date", date).eq("location_status", "verified")
+      .then(({ data }) => {
+        const g: Record<string, number> = {};
+        const m: Record<string, "present"> = {};
+        (data ?? []).forEach((r) => { g[r.student_id] = r.distance_meters ?? 0; m[r.student_id] = "present"; });
+        setGps(g);
+        setMarks((prev) => ({ ...prev, ...m }));
+      });
+  }, [subject, date]);
+
   const toggle = (uid: string) => {
     setMarks((m) => ({ ...m, [uid]: m[uid] === "present" ? "absent" : "present" }));
   };
 
   const save = async () => {
     if (!subject) { toast.error("Pick a subject"); return; }
-    const rows = students.map((s) => ({
+    const rows = students.filter((s) => !(s.user_id in gps)).map((s) => ({
       student_id: s.user_id, subject_code: subject, date, status: marks[s.user_id] ?? "absent", marked_by: user?.id ?? null,
     }));
+    if (rows.length === 0) { toast.success("All students already checked in"); return; }
     const { error } = await supabase.from("attendance").insert(rows);
     if (error) toast.error(error.message); else toast.success("Attendance saved");
   };
@@ -96,6 +112,9 @@ export const Attendance = () => {
               <div>
                 <p className="font-medium">{s.full_name}</p>
                 <p className="text-xs text-muted-foreground">{s.roll_number}</p>
+                {s.user_id in gps && (
+                  <p className="text-xs text-success font-medium">📍 GPS verified ({Math.round(gps[s.user_id])} m)</p>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant={marks[s.user_id] === "present" ? "default" : "outline"} onClick={() => toggle(s.user_id)}>
