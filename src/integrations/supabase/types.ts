@@ -137,29 +137,68 @@ export type Database = {
         Row: {
           created_at: string
           date: string
+          distance_meters: number | null
           id: string
+          location_status: string | null
           marked_by: string | null
           status: string
           student_id: string
+          student_lat: number | null
+          student_lng: number | null
           subject_code: string
         }
         Insert: {
           created_at?: string
           date: string
+          distance_meters?: number | null
           id?: string
+          location_status?: string | null
           marked_by?: string | null
           status: string
           student_id: string
+          student_lat?: number | null
+          student_lng?: number | null
           subject_code: string
         }
         Update: {
           created_at?: string
           date?: string
+          distance_meters?: number | null
           id?: string
+          location_status?: string | null
           marked_by?: string | null
           status?: string
           student_id?: string
+          student_lat?: number | null
+          student_lng?: number | null
           subject_code?: string
+        }
+        Relationships: []
+      }
+      campus_settings: {
+        Row: {
+          campus_name: string
+          id: number
+          latitude: number
+          longitude: number
+          radius_meters: number
+          updated_at: string
+        }
+        Insert: {
+          campus_name?: string
+          id?: number
+          latitude: number
+          longitude: number
+          radius_meters?: number
+          updated_at?: string
+        }
+        Update: {
+          campus_name?: string
+          id?: number
+          latitude?: number
+          longitude?: number
+          radius_meters?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -768,6 +807,14 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      geo_check_in: {
+        Args: { _lat: number; _lng: number; _subject_code: string }
+        Returns: {
+          distance_meters: number
+          radius_meters: number
+          status: string
+        }[]
       }
       get_profile_directory: {
         Args: never
