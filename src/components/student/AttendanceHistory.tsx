@@ -12,6 +12,7 @@ import {
   Tooltip as RTooltip, Cell,
 } from "recharts";
 import { SUBJECT_FULL_NAMES } from "@/data/courses";
+import { GeoCheckIn } from "./GeoCheckIn";
 
 interface Row { date: string; status: string; subject_code: string; }
 
@@ -75,6 +76,7 @@ export const AttendanceHistory = () => {
     })();
   }, [blinkEnabled, user]);
 
+  const [reloadKey, setReloadKey] = useState(0);
   useEffect(() => {
     if (!user) return;
     supabase
@@ -86,7 +88,7 @@ export const AttendanceHistory = () => {
         setRows((data ?? []) as Row[]);
         setLoading(false);
       });
-  }, [user]);
+  }, [user, reloadKey]);
 
   const stats: SubjectStat[] = useMemo(() => {
     const now = Date.now();
@@ -158,6 +160,8 @@ export const AttendanceHistory = () => {
           </Label>
         </div>
       </div>
+
+      <GeoCheckIn onMarked={() => setReloadKey((k) => k + 1)} />
 
       {/* Overall card */}
       <div className="glass-strong rounded-3xl p-6 animate-scale-in flex flex-col md:flex-row md:items-center gap-6">
