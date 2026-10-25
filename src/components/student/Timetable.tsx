@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { supabase } from "@/lib/api/client";
+import { supabase } from "@/integrations/supabase/client";
 import { TIME_SLOTS, DAYS, SUBJECT_FULL_NAMES } from "@/data/courses";
 import { Clock, Coffee, Utensils } from "lucide-react";
 

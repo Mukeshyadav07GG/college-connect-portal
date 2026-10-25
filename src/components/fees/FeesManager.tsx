@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Wallet, Save, Upload, Loader2, FileText, Download, Eye, Receipt } from "lucide-react";
-import { supabase } from "@/lib/api/client";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsFeeManager, fetchStudents, type StudentLite } from "@/hooks/useFeeManager";
 import { generateReceiptPDF, buildReceiptNo } from "@/lib/feeReceipt";
