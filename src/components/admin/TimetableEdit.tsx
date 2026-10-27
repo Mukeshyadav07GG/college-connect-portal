@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
+import { SEMESTERS, semLabel } from "@/lib/semesters";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -19,13 +20,16 @@ export const TimetableEdit = () => {
   const [subjectCode, setSubjectCode] = useState("");
   const [faculty, setFaculty] = useState("");
   const [room, setRoom] = useState("");
+  const [sem, setSem] = useState("VI");
+  const [section, setSection] = useState("CS31");
+  const [branch, setBranch] = useState("CSE");
 
-  const refresh = () => supabase.from("timetable").select("*").eq("section", "CS31").order("day").order("slot").then(({ data }) => setRows(data ?? []));
-  useEffect(() => { refresh(); }, []);
+  const refresh = () => supabase.from("timetable").select("*").eq("semester", sem).eq("section", section).order("day").order("slot").then(({ data }) => setRows(data ?? []));
+  useEffect(() => { refresh(); }, [sem, section]);
 
   const submit = async () => {
     const { error } = await supabase.from("timetable").insert({
-      branch: "CSE", section: "CS31", semester: "VI", day, slot: Number(slot), subject_code: subjectCode, faculty_name: faculty, room,
+      branch, section, semester: sem, day, slot: Number(slot), subject_code: subjectCode, faculty_name: faculty, room,
     });
     if (error) { toast.error(error.message); return; }
     toast.success("Slot added");
@@ -40,7 +44,13 @@ export const TimetableEdit = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div><h1 className="text-3xl font-bold">Timetable (CS31)</h1><p className="text-muted-foreground">Edit class schedule</p></div>
+        <div><h1 className="text-3xl font-bold">Timetable ({semLabel(sem)} · {section})</h1><p className="text-muted-foreground">Edit class schedule for any semester</p>
+          <div className="flex gap-2 mt-2 flex-wrap">
+            <Select value={sem} onValueChange={setSem}><SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
+              <SelectContent>{SEMESTERS.map((x) => <SelectItem key={x} value={x}>{semLabel(x)}</SelectItem>)}</SelectContent></Select>
+            <Input className="w-28" value={section} onChange={(e) => setSection(e.target.value.trim())} placeholder="Section" />
+            <Input className="w-24" value={branch} onChange={(e) => setBranch(e.target.value)} placeholder="Branch" />
+          </div></div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1" /> Add Slot</Button></DialogTrigger>
           <DialogContent className="glass-card">

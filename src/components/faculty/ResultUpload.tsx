@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
+import { SEMESTERS, semLabel } from "@/lib/semesters";
 
 export const ResultUpload = () => {
   const [open, setOpen] = useState(false);
@@ -19,12 +20,13 @@ export const ResultUpload = () => {
   const [examType, setExamType] = useState("sessional1");
   const [marks, setMarks] = useState("");
   const [maxMarks, setMaxMarks] = useState("100");
+  const [sem, setSem] = useState("all");
 
   const refresh = () => supabase.from("results").select("*").order("created_at", { ascending: false }).limit(50).then(({ data }) => setList(data ?? []));
 
   useEffect(() => {
-    supabase.from("profiles").select("user_id, full_name, roll_number").not("roll_number", "is", null).then(({ data }) => setStudents(data ?? []));
-    supabase.from("subjects").select("code, name").then(({ data }) => setSubjects(data ?? []));
+    supabase.from("profiles").select("user_id, full_name, roll_number, semester").not("roll_number", "is", null).then(({ data }) => setStudents(data ?? []));
+    supabase.from("subjects").select("code, name, semester").then(({ data }) => setSubjects(data ?? []));
     refresh();
   }, []);
 
@@ -48,17 +50,24 @@ export const ResultUpload = () => {
             <DialogHeader><DialogTitle>Upload Result</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div>
+                <Label>Semester</Label>
+                <Select value={sem} onValueChange={(v) => { setSem(v); setStudentId(""); setSubject(""); }}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="all">All</SelectItem>{SEMESTERS.map((x) => <SelectItem key={x} value={x}>{semLabel(x)}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label>Student</Label>
                 <Select value={studentId} onValueChange={setStudentId}>
                   <SelectTrigger><SelectValue placeholder="Pick student" /></SelectTrigger>
-                  <SelectContent>{students.map((s) => <SelectItem key={s.user_id} value={s.user_id}>{s.roll_number} – {s.full_name}</SelectItem>)}</SelectContent>
+                  <SelectContent>{students.filter((s) => sem === "all" || s.semester === sem).map((s) => <SelectItem key={s.user_id} value={s.user_id}>{s.roll_number} – {s.full_name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Subject</Label>
                 <Select value={subject} onValueChange={setSubject}>
                   <SelectTrigger><SelectValue placeholder="Pick subject" /></SelectTrigger>
-                  <SelectContent>{subjects.map((s) => <SelectItem key={s.code} value={s.code}>{s.code} – {s.name}</SelectItem>)}</SelectContent>
+                  <SelectContent>{subjects.filter((s) => sem === "all" || s.semester === sem).map((s) => <SelectItem key={s.code} value={s.code}>{s.code} – {s.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
