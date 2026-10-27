@@ -3,6 +3,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { supabase } from "@/integrations/supabase/client";
 import { TIME_SLOTS, DAYS, SUBJECT_FULL_NAMES } from "@/data/courses";
 import { Clock, Coffee, Utensils } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface TTRow {
   day: string;
@@ -25,14 +26,19 @@ const SUBJECT_COLORS: Record<string, string> = {
 export const Timetable = () => {
   const [rows, setRows] = useState<TTRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const { role, profile } = useAuth();
+  const sem = role === "student" ? (profile?.semester || "VI") : null;
+  const section = role === "student" ? profile?.section : "CS31";
 
   useEffect(() => {
-    supabase.from("timetable").select("day,slot,subject_code,faculty_name,room").eq("section", "CS31")
-      .then(({ data }) => {
+    let q = supabase.from("timetable").select("day,slot,subject_code,faculty_name,room");
+    if (sem) q = q.eq("semester", sem);
+    if (section) q = q.eq("section", section);
+    q.then(({ data }) => {
         setRows(data ?? []);
         setLoading(false);
       });
-  }, []);
+  }, [sem, section]);
 
   const lookup = (day: string, slot: number) => rows.find((r) => r.day === day && r.slot === slot);
 

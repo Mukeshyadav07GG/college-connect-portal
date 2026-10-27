@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { Plus, Trash2, BookOpen, Pencil } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SEMESTERS, semLabel } from "@/lib/semesters";
 
 interface Subject {
   id: string;
@@ -33,6 +35,7 @@ export const SubjectsAdmin = () => {
   const [branch, setBranch] = useState("CSE");
   const [units, setUnits] = useState("");
   const [completion, setCompletion] = useState("0");
+  const [semFilter, setSemFilter] = useState("all");
 
   const refresh = () => supabase.from("subjects").select("*").order("code").then(({ data }) => setList((data as Subject[]) ?? []));
   useEffect(() => { refresh(); }, []);
@@ -87,7 +90,7 @@ export const SubjectsAdmin = () => {
               <div><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
               <div className="grid grid-cols-3 gap-2">
                 <div><Label>Branch</Label><Input value={branch} onChange={(e) => setBranch(e.target.value)} /></div>
-                <div><Label>Semester</Label><Input value={semester} onChange={(e) => setSemester(e.target.value)} /></div>
+                <div><Label>Semester</Label><Select value={semester} onValueChange={setSemester}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{SEMESTERS.map((x) => <SelectItem key={x} value={x}>{semLabel(x)}</SelectItem>)}</SelectContent></Select></div>
                 <div><Label>Completion %</Label><Input type="number" min="0" max="100" value={completion} onChange={(e) => setCompletion(e.target.value)} /></div>
               </div>
               <div>
@@ -100,14 +103,20 @@ export const SubjectsAdmin = () => {
         </Dialog>
       </div>
 
+      <div className="flex gap-2 flex-wrap">
+        {["all", ...SEMESTERS].map((x) => (
+          <Button key={x} size="sm" variant={semFilter === x ? "default" : "outline"} onClick={() => setSemFilter(x)}>{x === "all" ? "All" : semLabel(x)}</Button>
+        ))}
+      </div>
+
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {list.map((s) => (
+        {list.filter((s) => semFilter === "all" || s.semester === semFilter).map((s) => (
           <Card key={s.id} className="glass-card p-4">
             <div className="flex items-start justify-between mb-2">
               <div>
                 <p className="font-mono text-xs font-bold text-primary">{s.code}</p>
                 <h3 className="font-semibold text-sm">{s.name}</h3>
-                <p className="text-xs text-muted-foreground">{s.faculty_name}</p>
+                <p className="text-xs text-muted-foreground">{s.faculty_name}{s.semester && ` · ${semLabel(s.semester)}`}</p>
               </div>
               <div className="flex gap-1">
                 <Button size="icon" variant="ghost" onClick={() => startEdit(s)}><Pencil className="h-3.5 w-3.5" /></Button>
