@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Users, Search, Camera, Trash2 } from "lucide-react";
+import { AddUserDialog } from "./AddUserDialog";
 
 type Role = "student" | "faculty" | "admin";
 
@@ -112,9 +113,12 @@ export const UserManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2"><Users className="h-7 w-7" /> User Management</h1>
-        <p className="text-muted-foreground">View all users and change their roles</p>
+      <div className="flex justify-between items-center gap-3 flex-wrap">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2"><Users className="h-7 w-7" /> User Management</h1>
+          <p className="text-muted-foreground">Add users, view all users and change their roles</p>
+        </div>
+        <AddUserDialog onCreated={load} />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
