@@ -8,26 +8,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { SEMESTERS, semLabel, subjectSem } from "@/lib/semesters";
 
-interface Student { user_id: string; full_name: string; roll_number: string | null; }
+interface Student { user_id: string; full_name: string; roll_number: string | null; semester: string | null; }
 
 export const Attendance = () => {
-  const { user } = useAuth();
-  const [students, setStudents] = useState<Student[]>([]);
-  const [subjects, setSubjects] = useState<{ code: string; name: string }[]>([]);
+  const { user, profile } = useAuth();
+  const [allStudents, setAllStudents] = useState<Student[]>([]);
+  const [allSubjects, setAllSubjects] = useState<{ code: string; name: string; semester: string | null }[]>([]);
+  const [mySubjects, setMySubjects] = useState<string[]>([]);
+  const [sem, setSem] = useState<string>("");
   const [subject, setSubject] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [marks, setMarks] = useState<Record<string, "present" | "absent">>({});
   const [gps, setGps] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    supabase.from("profiles").select("user_id, full_name, roll_number").not("roll_number", "is", null).then(({ data }) => {
-      setStudents((data as Student[]) ?? []);
+    supabase.from("profiles").select("user_id, full_name, roll_number, semester").not("roll_number", "is", null).then(({ data }) => {
+      setAllStudents((data as Student[]) ?? []);
     });
-    supabase.from("subjects").select("code, name").then(({ data }) => {
-      setSubjects((data as any) ?? []);
+    supabase.from("subjects").select("code, name, semester").order("code").then(({ data }) => {
+      setAllSubjects((data as any) ?? []);
     });
   }, []);
+
+  // Subjects assigned to this faculty (by name match in faculty directory)
+  useEffect(() => {
+    if (!profile?.full_name) return;
+    supabase.from("faculty").select("name, subjects").then(({ data }) => {
+      const me = (data ?? []).find((f: any) => f.name?.trim().toLowerCase() === profile.full_name.trim().toLowerCase());
+      setMySubjects(((me?.subjects as string[]) ?? []).map((x) => x.trim().toUpperCase()));
+    });
+  }, [profile?.full_name]);
+
+  const mine = (s: { code: string; name: string }) =>
+    mySubjects.length === 0 || mySubjects.includes(s.code.toUpperCase()) || mySubjects.includes(s.name.toUpperCase());
+  const mySems = SEMESTERS.filter((x) => allSubjects.some((s) => mine(s) && subjectSem(s) === x));
+  const semOptions = mySems.length ? mySems : [...SEMESTERS];
+  useEffect(() => { if (!sem && semOptions.length) setSem(semOptions[0]); }, [semOptions.join(), sem]);
+  const subjects = allSubjects.filter((s) => mine(s) && subjectSem(s) === sem);
+  const students = allStudents.filter((s) => s.semester === sem);
 
   // Load GPS self check-ins for the selected subject/date
   useEffect(() => {
@@ -89,6 +109,13 @@ export const Attendance = () => {
       </div>
 
       <Card className="glass-card p-4 flex flex-wrap gap-3 items-end">
+        <div>
+          <Label>Semester</Label>
+          <Select value={sem} onValueChange={(v) => { setSem(v); setSubject(""); setMarks({}); }}>
+            <SelectTrigger className="w-32"><SelectValue placeholder="Semester" /></SelectTrigger>
+            <SelectContent>{semOptions.map((x) => <SelectItem key={x} value={x}>{semLabel(x)}</SelectItem>)}</SelectContent>
+          </Select>
+        </div>
         <div className="flex-1 min-w-[180px]">
           <Label>Subject</Label>
           <Select value={subject} onValueChange={setSubject}>
