@@ -4,15 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { subjectSem } from "@/lib/semesters";
 
 export const GeoCheckIn = ({ onMarked }: { onMarked?: () => void }) => {
   const [subjects, setSubjects] = useState<{ code: string; name: string }[]>([]);
   const [subject, setSubject] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const { profile } = useAuth();
+  const sem = profile?.semester ?? null;
+
   useEffect(() => {
-    supabase.from("subjects").select("code, name").order("code").then(({ data }) => setSubjects(data ?? []));
-  }, []);
+    supabase.from("subjects").select("code, name, semester").order("code").then(({ data }) =>
+      setSubjects((data ?? []).filter((s) => !sem || subjectSem(s) === sem)));
+  }, [sem]);
 
   const checkIn = () => {
     if (!subject) { toast.error("Pick a subject"); return; }
