@@ -130,19 +130,6 @@ var list_faculty_directory_default = defineTool4({
 import { createClient as createClient5 } from "npm:@supabase/supabase-js@^2.103.3";
 import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { z as z3 } from "npm:zod@^4.4.3";
-const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB decoded limit
-const ALLOWED_UPLOAD_MIME = new Set([
-  "application/pdf",
-  "image/png", "image/jpeg", "image/webp", "image/gif",
-  "text/plain", "text/csv",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.ms-powerpoint",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/zip",
-]);
 function supabaseForUser5(ctx) {
   return createClient5(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
     global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
@@ -165,7 +152,7 @@ var upload_assignment_default = defineTool5({
     deadline: z3.string().datetime({ offset: true }).describe("Deadline as an ISO 8601 timestamp with timezone."),
     description: z3.string().trim().max(4e3).optional().describe("Optional description."),
     file_name: z3.string().trim().min(1).max(200).describe("Original file name including extension."),
-    file_base64: z3.string().min(1).max(14_000_000).describe("File contents as base64, either raw or a `data:<mime>;base64,...` URL. Max 10 MB after decoding."),
+    file_base64: z3.string().min(1).describe("File contents as base64, either raw or a `data:<mime>;base64,...` URL."),
     file_mime: z3.string().trim().optional().describe("Optional MIME type (e.g. `application/pdf`). Defaults to `application/octet-stream`.")
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
@@ -184,17 +171,10 @@ var upload_assignment_default = defineTool5({
     } catch {
       return { content: [{ type: "text", text: "file_base64 is not valid base64" }], isError: true };
     }
-    if (bytes.length > MAX_UPLOAD_BYTES) {
-      return { content: [{ type: "text", text: `File too large: ${bytes.length} bytes. Maximum is 10 MB.` }], isError: true };
-    }
-    const mime = (input.file_mime || "application/octet-stream").toLowerCase().split(";")[0].trim();
-    if (!ALLOWED_UPLOAD_MIME.has(mime)) {
-      return { content: [{ type: "text", text: `Unsupported file type "${mime}". Allowed: PDF, images (png/jpeg/webp/gif), text, csv, Word, Excel, PowerPoint, zip.` }], isError: true };
-    }
     const safeName = input.file_name.replace(/[^A-Za-z0-9._-]/g, "_");
     const path = `${uid}/${Date.now()}-${safeName}`;
     const { error: upErr } = await supabase.storage.from("assignments").upload(path, bytes, {
-      contentType: mime,
+      contentType: input.file_mime || "application/octet-stream",
       upsert: false
     });
     if (upErr) {
