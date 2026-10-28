@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Wallet, Save, Upload, Loader2, FileText, Download, Eye, Receipt } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { viewStudentDoc, downloadStudentDoc } from "@/lib/studentDocs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsFeeManager, fetchStudents, type StudentLite } from "@/hooks/useFeeManager";
 import { generateReceiptPDF, buildReceiptNo } from "@/lib/feeReceipt";
@@ -297,8 +298,8 @@ export const FeesManager = () => {
                         </div>
                       </div>
                       <div className="flex gap-1.5 flex-shrink-0">
-                        <Button size="sm" variant="outline" asChild><a href={r.file_url} target="_blank" rel="noreferrer"><Eye className="w-4 h-4" /></a></Button>
-                        <Button size="sm" asChild><a href={r.file_url} download><Download className="w-4 h-4" /></a></Button>
+                        <Button size="sm" variant="outline" onClick={() => viewStudentDoc(r.file_url)}><Eye className="w-4 h-4" /></Button>
+                        <Button size="sm" onClick={() => downloadStudentDoc(r.file_url)}><Download className="w-4 h-4" /></Button>
                       </div>
                     </div>
                   ))}
