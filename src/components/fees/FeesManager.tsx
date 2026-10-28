@@ -152,11 +152,10 @@ export const FeesManager = () => {
         upsert: false,
       });
       if (upErr) throw upErr;
-      const { data: pub } = await supabase.storage.from("student-docs").createSignedUrl(path, 60 * 60 * 24 * 365);
       const { error: dErr } = await supabase.from("student_documents").insert({
         student_id: selected.user_id,
         title: docTitle.trim(),
-        file_url: pub?.signedUrl ?? "",
+        file_url: path,
         type: "document",
         uploaded_by: user.id,
       });
