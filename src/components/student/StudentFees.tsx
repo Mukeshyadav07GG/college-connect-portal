@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Wallet, FileText, Download, Eye, Receipt, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { viewStudentDoc, downloadStudentDoc } from "@/lib/studentDocs";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface FeeRow { total_fee: number; paid_amount: number; updated_at: string }
@@ -113,8 +114,8 @@ export const StudentFees = () => {
                     </div>
                   </div>
                   <div className="flex gap-1.5 flex-shrink-0">
-                    <Button size="sm" variant="outline" asChild><a href={r.file_url} target="_blank" rel="noreferrer"><Eye className="w-4 h-4" /></a></Button>
-                    <Button size="sm" asChild><a href={r.file_url} download><Download className="w-4 h-4" /></a></Button>
+                    <Button size="sm" variant="outline" onClick={() => viewStudentDoc(r.file_url)}><Eye className="w-4 h-4" /></Button>
+                    <Button size="sm" onClick={() => downloadStudentDoc(r.file_url)}><Download className="w-4 h-4" /></Button>
                   </div>
                 </div>
               ))}
@@ -137,8 +138,8 @@ export const StudentFees = () => {
                     <div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</div>
                   </div>
                   <div className="flex gap-1.5 flex-shrink-0">
-                    <Button size="sm" variant="outline" asChild><a href={r.file_url} target="_blank" rel="noreferrer"><Eye className="w-4 h-4" /></a></Button>
-                    <Button size="sm" asChild><a href={r.file_url} download><Download className="w-4 h-4" /></a></Button>
+                    <Button size="sm" variant="outline" onClick={() => viewStudentDoc(r.file_url)}><Eye className="w-4 h-4" /></Button>
+                    <Button size="sm" onClick={() => downloadStudentDoc(r.file_url)}><Download className="w-4 h-4" /></Button>
                   </div>
                 </div>
               ))}

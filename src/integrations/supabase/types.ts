@@ -138,6 +138,7 @@ export type Database = {
           created_at: string
           date: string
           distance_meters: number | null
+          gps_accuracy: number | null
           id: string
           location_status: string | null
           marked_by: string | null
@@ -151,6 +152,7 @@ export type Database = {
           created_at?: string
           date: string
           distance_meters?: number | null
+          gps_accuracy?: number | null
           id?: string
           location_status?: string | null
           marked_by?: string | null
@@ -164,6 +166,7 @@ export type Database = {
           created_at?: string
           date?: string
           distance_meters?: number | null
+          gps_accuracy?: number | null
           id?: string
           location_status?: string | null
           marked_by?: string | null
@@ -808,14 +811,28 @@ export type Database = {
           isSetofReturn: true
         }
       }
-      geo_check_in: {
-        Args: { _lat: number; _lng: number; _subject_code: string }
-        Returns: {
-          distance_meters: number
-          radius_meters: number
-          status: string
-        }[]
-      }
+      geo_check_in:
+        | {
+            Args: { _lat: number; _lng: number; _subject_code: string }
+            Returns: {
+              distance_meters: number
+              radius_meters: number
+              status: string
+            }[]
+          }
+        | {
+            Args: {
+              _accuracy?: number
+              _lat: number
+              _lng: number
+              _subject_code: string
+            }
+            Returns: {
+              distance_meters: number
+              radius_meters: number
+              status: string
+            }[]
+          }
       get_profile_directory: {
         Args: never
         Returns: {

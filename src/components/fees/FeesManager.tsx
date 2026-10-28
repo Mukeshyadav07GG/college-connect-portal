@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Wallet, Save, Upload, Loader2, FileText, Download, Eye, Receipt } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { viewStudentDoc, downloadStudentDoc } from "@/lib/studentDocs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsFeeManager, fetchStudents, type StudentLite } from "@/hooks/useFeeManager";
 import { generateReceiptPDF, buildReceiptNo } from "@/lib/feeReceipt";
@@ -125,11 +126,10 @@ export const FeesManager = () => {
       upsert: true,
     });
     if (upErr) throw upErr;
-    const { data: pub } = await supabase.storage.from("student-docs").createSignedUrl(path, 60 * 60 * 24 * 365);
     const { error: dErr } = await supabase.from("student_documents").insert({
       student_id: selected.user_id,
       title: `Fee Receipt — ${receiptNo}`,
-      file_url: pub?.signedUrl ?? "",
+      file_url: path,
       type: "receipt",
       receipt_no: receiptNo,
       amount: paidThisTxn,
@@ -153,11 +153,10 @@ export const FeesManager = () => {
         upsert: false,
       });
       if (upErr) throw upErr;
-      const { data: pub } = await supabase.storage.from("student-docs").createSignedUrl(path, 60 * 60 * 24 * 365);
       const { error: dErr } = await supabase.from("student_documents").insert({
         student_id: selected.user_id,
         title: docTitle.trim(),
-        file_url: pub?.signedUrl ?? "",
+        file_url: path,
         type: "document",
         uploaded_by: user.id,
       });
@@ -299,8 +298,8 @@ export const FeesManager = () => {
                         </div>
                       </div>
                       <div className="flex gap-1.5 flex-shrink-0">
-                        <Button size="sm" variant="outline" asChild><a href={r.file_url} target="_blank" rel="noreferrer"><Eye className="w-4 h-4" /></a></Button>
-                        <Button size="sm" asChild><a href={r.file_url} download><Download className="w-4 h-4" /></a></Button>
+                        <Button size="sm" variant="outline" onClick={() => viewStudentDoc(r.file_url)}><Eye className="w-4 h-4" /></Button>
+                        <Button size="sm" onClick={() => downloadStudentDoc(r.file_url)}><Download className="w-4 h-4" /></Button>
                       </div>
                     </div>
                   ))}

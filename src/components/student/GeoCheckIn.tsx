@@ -28,6 +28,7 @@ export const GeoCheckIn = ({ onMarked }: { onMarked?: () => void }) => {
       async (pos) => {
         const { data, error } = await supabase.rpc("geo_check_in", {
           _subject_code: subject, _lat: pos.coords.latitude, _lng: pos.coords.longitude,
+          _accuracy: pos.coords.accuracy,
         });
         setBusy(false);
         if (error) { toast.error(error.message); return; }
