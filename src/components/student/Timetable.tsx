@@ -138,7 +138,7 @@ export const Timetable = () => {
         <div className="glass rounded-2xl p-4">
           <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Subject Legend</h3>
           <div className="flex flex-wrap gap-2">
-            {Object.entries(SUBJECT_FULL_NAMES).map(([code, info]) => (
+            {legend.map(([code, info]) => (
               <div key={code} className="flex items-center gap-2 text-xs">
                 <div className={`w-4 h-4 rounded bg-gradient-to-br ${SUBJECT_COLORS[code]}`} />
                 <span className="font-mono font-bold">{code}</span>
