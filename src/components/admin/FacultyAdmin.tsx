@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { UserCog, Plus, Pencil, Trash2, Search } from "lucide-react";
+import { SEMESTERS, semLabel, subjectSem } from "@/lib/semesters";
 
 interface FacultyRow {
   id: string;
@@ -35,6 +36,18 @@ export const FacultyAdmin = () => {
   const [q, setQ] = useState("");
   const [editing, setEditing] = useState<Partial<FacultyRow> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [allSubjects, setAllSubjects] = useState<{ code: string; name: string; semester: string | null }[]>([]);
+  const [pickSems, setPickSems] = useState<string[]>([]);
+
+  useEffect(() => {
+    supabase.from("subjects").select("code, name, semester").order("code").then(({ data }) => setAllSubjects((data as any) ?? []));
+  }, []);
+
+  const openEdit = (r: Partial<FacultyRow>) => {
+    const codes = (r.subjects ?? []).map((x) => x.toUpperCase());
+    setPickSems(SEMESTERS.filter((x) => allSubjects.some((s) => codes.includes(s.code.toUpperCase()) && subjectSem(s) === x)));
+    setEditing(r);
+  };
 
   const load = async () => {
     setLoading(true);
@@ -84,7 +97,7 @@ export const FacultyAdmin = () => {
           <h1 className="text-3xl font-bold flex items-center gap-2"><UserCog className="h-7 w-7" /> Faculty Profiles</h1>
           <p className="text-muted-foreground">Add, edit, or remove faculty info shown to students</p>
         </div>
-        <Button onClick={() => setEditing({ ...empty })}><Plus className="h-4 w-4 mr-1" /> Add Faculty</Button>
+        <Button onClick={() => openEdit({ ...empty })}><Plus className="h-4 w-4 mr-1" /> Add Faculty</Button>
       </div>
 
       <div className="relative">
@@ -109,7 +122,7 @@ export const FacultyAdmin = () => {
                   )}
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
+                  <Button size="sm" variant="outline" onClick={() => openEdit(r)}><Pencil className="h-3.5 w-3.5" /></Button>
                   <Button size="sm" variant="outline" className="text-destructive" onClick={() => remove(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                 </div>
               </div>
@@ -143,12 +156,43 @@ export const FacultyAdmin = () => {
                   />
                 </div>
               ))}
-              <div className="md:col-span-2 space-y-1">
-                <label className="text-xs text-muted-foreground">Subjects (comma-separated)</label>
-                <Input
-                  value={Array.isArray(editing.subjects) ? editing.subjects.join(", ") : (editing.subjects as any) ?? ""}
-                  onChange={(e) => setEditing({ ...editing, subjects: e.target.value as any })}
-                />
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-xs text-muted-foreground">Assigned Semesters</label>
+                <div className="flex flex-wrap gap-2">
+                  {SEMESTERS.map((x) => (
+                    <Button key={x} type="button" size="sm" variant={pickSems.includes(x) ? "default" : "outline"}
+                      onClick={() => setPickSems((p) => p.includes(x) ? p.filter((y) => y !== x) : [...p, x])}>{semLabel(x)}</Button>
+                  ))}
+                </div>
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-xs text-muted-foreground">Assigned Subjects</label>
+                {pickSems.length === 0 ? <p className="text-xs text-muted-foreground">Pehle semester chuniye.</p> : (
+                  <div className="space-y-2 max-h-56 overflow-y-auto">
+                    {pickSems.map((x) => {
+                      const list = allSubjects.filter((s) => subjectSem(s) === x);
+                      const sel = (Array.isArray(editing.subjects) ? editing.subjects : []).map((c) => c.toUpperCase());
+                      return (
+                        <div key={x}>
+                          <p className="text-xs font-semibold mb-1">{semLabel(x)}</p>
+                          {list.length === 0 && <p className="text-xs text-muted-foreground">No subjects.</p>}
+                          <div className="flex flex-wrap gap-2">
+                            {list.map((s) => {
+                              const on = sel.includes(s.code.toUpperCase());
+                              return (
+                                <Button key={s.code} type="button" size="sm" variant={on ? "default" : "outline"}
+                                  onClick={() => {
+                                    const cur = Array.isArray(editing.subjects) ? editing.subjects : [];
+                                    setEditing({ ...editing, subjects: on ? cur.filter((c) => c.toUpperCase() !== s.code.toUpperCase()) : [...cur, s.code] });
+                                  }}>{s.code} – {s.name}</Button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
               <div className="md:col-span-2 space-y-1">
                 <label className="text-xs text-muted-foreground">About / Description</label>

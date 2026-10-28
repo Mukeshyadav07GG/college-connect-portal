@@ -7,6 +7,7 @@ import { Info, MessageSquare, Send, Loader2, Search, Mail, Phone, DoorOpen, Cloc
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { SEMESTERS, semLabel, semFromCode } from "@/lib/semesters";
 
 interface FacultyCard {
   // Faculty directory metadata
@@ -36,8 +37,10 @@ interface ChatMsg {
 }
 
 export const FacultyDirectory = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [list, setList] = useState<FacultyCard[]>([]);
+  const [semFilter, setSemFilter] = useState<string>("");
+  useEffect(() => { if (!semFilter) setSemFilter(profile?.semester ?? "all"); }, [profile?.semester]);
   const [search, setSearch] = useState("");
   const [aboutOpen, setAboutOpen] = useState<FacultyCard | null>(null);
   const [chatOpen, setChatOpen] = useState<FacultyCard | null>(null);
@@ -120,11 +123,16 @@ export const FacultyDirectory = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const base = !q ? list : list.filter((f) =>
+    const bySem = list.filter((f) => {
+      if (!semFilter || semFilter === "all") return true;
+      const sems = (f.subjects ?? []).map(semFromCode).filter(Boolean);
+      return sems.length === 0 ? rankOf(f) < 3 : sems.includes(semFilter);
+    });
+    const base = !q ? bySem : bySem.filter((f) =>
       [f.name, f.role, ...(f.subjects ?? [])].some((v) => v?.toLowerCase().includes(q))
     );
     return [...base].sort((a, b) => rankOf(a) - rankOf(b) || a.name.localeCompare(b.name));
-  }, [list, search]);
+  }, [list, search, semFilter]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -137,6 +145,13 @@ export const FacultyDirectory = () => {
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, subject…" className="pl-9" />
         </div>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {["all", ...SEMESTERS].map((x) => (
+          <Button key={x} size="sm" variant={semFilter === x ? "default" : "outline"} onClick={() => setSemFilter(x)}>
+            {x === "all" ? "All" : semLabel(x)}
+          </Button>
+        ))}
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
