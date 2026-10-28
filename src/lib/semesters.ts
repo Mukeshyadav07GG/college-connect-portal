@@ -3,8 +3,10 @@ export const semLabel = (s: string) => `Sem ${SEMESTERS.indexOf(s as any) + 1 ||
 
 /** Detects semester from a subject code: first digit of the 3-digit number (KCS-601 → VI, 101 → I). */
 export const semFromCode = (code?: string | null): string | null => {
-  const m = String(code ?? "").match(/(\d)\d{2}/);
-  const n = m ? Number(m[1]) : 0;
+  const m = String(code ?? "").match(/(\d)(\d)\d/);
+  if (!m) return null;
+  // AKTU electives like KCS-062 / KCS-070 → second digit is the semester
+  const n = m[1] === "0" ? Number(m[2]) : Number(m[1]);
   return n >= 1 && n <= 8 ? SEMESTERS[n - 1] : null;
 };
 

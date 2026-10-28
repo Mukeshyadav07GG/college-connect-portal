@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TIME_SLOTS, DAYS, SUBJECT_FULL_NAMES } from "@/data/courses";
 import { Clock, Coffee, Utensils, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { SEMESTERS, semLabel } from "@/lib/semesters";
 
 interface TTRow {
   day: string;
@@ -34,6 +35,7 @@ export const FacultyTimetable = () => {
   const [rows, setRows] = useState<TTRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [onlyMine, setOnlyMine] = useState(false);
+  const [sem, setSem] = useState<string>("VI");
 
   const myName = norm(profile?.full_name);
 
@@ -41,12 +43,12 @@ export const FacultyTimetable = () => {
     supabase
       .from("timetable")
       .select("day,slot,subject_code,faculty_name,room")
-      .eq("section", "CS31")
+      .eq("semester", sem)
       .then(({ data }) => {
         setRows(data ?? []);
         setLoading(false);
       });
-  }, []);
+  }, [sem]);
 
   const isMine = (faculty?: string | null) => !!myName && norm(faculty) === myName;
 
@@ -82,7 +84,10 @@ export const FacultyTimetable = () => {
               {myName && <> You have <strong>{myCount}</strong> class{myCount === 1 ? "" : "es"} this week.</>}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <select value={sem} onChange={(e) => setSem(e.target.value)} className="h-9 rounded-md border border-input bg-background px-2 text-sm">
+              {SEMESTERS.map((x) => <option key={x} value={x}>{semLabel(x)}</option>)}
+            </select>
             <Button
               size="sm"
               variant={!onlyMine ? "default" : "outline"}
@@ -102,7 +107,7 @@ export const FacultyTimetable = () => {
 
         {/* Class info */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          <InfoCard label="Course" value="B.Tech VI Sem" />
+          <InfoCard label="Course" value={`B.Tech ${sem} Sem`} />
           <InfoCard label="Section" value="CS31" />
           <InfoCard label="Room" value="G26" />
           <InfoCard label="Coordinator" value="Mr. Nikhil Tyagi" />

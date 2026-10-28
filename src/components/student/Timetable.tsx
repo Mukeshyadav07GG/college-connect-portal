@@ -27,10 +27,12 @@ export const Timetable = () => {
   const [rows, setRows] = useState<TTRow[]>([]);
   const [loading, setLoading] = useState(true);
   const { role, profile } = useAuth();
-  const sem = role === "student" ? (profile?.semester || "VI") : null;
+  const sem = role === "student" ? (profile?.semester ?? null) : null;
   const section = role === "student" ? profile?.section : "CS31";
 
   useEffect(() => {
+    if (role === "student" && !sem) { setRows([]); setLoading(!profile); return; }
+    setLoading(true);
     let q = supabase.from("timetable").select("day,slot,subject_code,faculty_name,room");
     if (sem) q = q.eq("semester", sem);
     if (section) q = q.eq("section", section);
@@ -38,9 +40,11 @@ export const Timetable = () => {
         setRows(data ?? []);
         setLoading(false);
       });
-  }, [sem, section]);
+  }, [sem, section, role, profile]);
 
   const lookup = (day: string, slot: number) => rows.find((r) => r.day === day && r.slot === slot);
+  const usedCodes = new Set(rows.map((r) => r.subject_code).filter(Boolean) as string[]);
+  const legend = Object.entries(SUBJECT_FULL_NAMES).filter(([c]) => usedCodes.has(c));
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -51,13 +55,16 @@ export const Timetable = () => {
         </div>
 
         {/* Class info */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          <InfoCard label="Course" value="B.Tech VI Sem" />
-          <InfoCard label="Section" value="CS31" />
-          <InfoCard label="Room" value="G26" />
-          <InfoCard label="Coordinator" value="Mr. Nikhil Tyagi" />
-          <InfoCard label="Deputy" value="Ms. Aditi Gautam" />
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <InfoCard label="Course" value={sem ? `B.Tech ${sem} Sem` : "B.Tech"} />
+          <InfoCard label="Section" value={section || "—"} />
+          <InfoCard label="Branch" value={profile?.branch || "—"} />
         </div>
+        {!loading && rows.length === 0 && (
+          <div className="glass rounded-2xl p-4 text-sm text-muted-foreground text-center">
+            Semester {sem ?? ""} ka timetable abhi schedule nahi hua hai.
+          </div>
+        )}
 
         {/* Grid */}
         <div className="glass rounded-3xl p-3 md:p-5 overflow-x-auto">
@@ -131,7 +138,7 @@ export const Timetable = () => {
         <div className="glass rounded-2xl p-4">
           <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Subject Legend</h3>
           <div className="flex flex-wrap gap-2">
-            {Object.entries(SUBJECT_FULL_NAMES).map(([code, info]) => (
+            {legend.map(([code, info]) => (
               <div key={code} className="flex items-center gap-2 text-xs">
                 <div className={`w-4 h-4 rounded bg-gradient-to-br ${SUBJECT_COLORS[code]}`} />
                 <span className="font-mono font-bold">{code}</span>
