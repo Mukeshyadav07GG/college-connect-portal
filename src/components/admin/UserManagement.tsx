@@ -7,8 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Users, Search, Camera, Trash2 } from "lucide-react";
+import { Users, Search, Camera, Trash2, Pencil } from "lucide-react";
 import { AddUserDialog } from "./AddUserDialog";
+import { EditUserDialog } from "./EditUserDialog";
+import { SEMESTERS, semLabel } from "@/lib/semesters";
 
 type Role = "student" | "faculty" | "admin";
 
@@ -19,6 +21,9 @@ interface UserRow {
   roll_number: string | null;
   employee_id: string | null;
   branch: string | null;
+  semester: string | null;
+  section: string | null;
+  phone: string | null;
   role: Role | null;
   avatar_url?: string | null;
 }
@@ -26,6 +31,8 @@ interface UserRow {
 export const UserManagement = () => {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [filter, setFilter] = useState<"all" | Role>("all");
+  const [semF, setSemF] = useState("all");
+  const [editUser, setEditUser] = useState<UserRow | null>(null);
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(true);
   const [photoUser, setPhotoUser] = useState<UserRow | null>(null);
@@ -36,7 +43,7 @@ export const UserManagement = () => {
   const load = async () => {
     setLoading(true);
     const [{ data: profs }, { data: roles }] = await Promise.all([
-      supabase.from("profiles").select("user_id, full_name, email, roll_number, employee_id, branch, avatar_url"),
+      supabase.from("profiles").select("user_id, full_name, email, roll_number, employee_id, branch, semester, section, phone, avatar_url"),
       supabase.from("user_roles").select("user_id, role"),
     ]);
     const roleMap = new Map<string, Role>();
@@ -100,6 +107,7 @@ export const UserManagement = () => {
 
   const filtered = users.filter((u) => {
     if (filter !== "all" && u.role !== filter) return false;
+    if (semF !== "all" && u.semester !== semF) return false;
     if (q && !`${u.full_name} ${u.email} ${u.roll_number} ${u.employee_id}`.toLowerCase().includes(q.toLowerCase())) return false;
     return true;
   });
@@ -134,10 +142,20 @@ export const UserManagement = () => {
         ))}
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name, email, roll/employee ID…" className="pl-9" />
+      <div className="flex gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name, email, roll/employee ID…" className="pl-9" />
+        </div>
+        <Select value={semF} onValueChange={setSemF}>
+          <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All semesters</SelectItem>
+            {SEMESTERS.map((s) => <SelectItem key={s} value={s}>{semLabel(s)}</SelectItem>)}
+          </SelectContent>
+        </Select>
       </div>
+      <EditUserDialog user={editUser} onClose={() => setEditUser(null)} onSaved={load} />
 
       <Card className="glass-card p-4">
         {loading ? (
@@ -169,7 +187,9 @@ export const UserManagement = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  {u.semester && <Badge variant="secondary">{semLabel(u.semester)}{u.section ? ` · ${u.section}` : ""}</Badge>}
                   {u.role && <Badge variant="outline">{u.role}</Badge>}
+                  <Button size="sm" variant="outline" className="h-8" onClick={() => setEditUser(u)}><Pencil className="h-3.5 w-3.5 mr-1" /> Edit</Button>
                   <Select value={u.role ?? ""} onValueChange={(v) => changeRole(u.user_id, v as Role)}>
                     <SelectTrigger className="w-[130px] h-8 text-xs"><SelectValue placeholder="Set role" /></SelectTrigger>
                     <SelectContent>
