@@ -37,7 +37,7 @@ interface ChatMsg {
 }
 
 export const FacultyDirectory = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, role } = useAuth();
   const [list, setList] = useState<FacultyCard[]>([]);
   const [semFilter, setSemFilter] = useState<string>("all");
   useEffect(() => { if (profile?.semester) setSemFilter(profile.semester); }, [profile?.semester]);
@@ -146,13 +146,17 @@ export const FacultyDirectory = () => {
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, subject…" className="pl-9" />
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
-        {["all", ...SEMESTERS].map((x) => (
-          <Button key={x} size="sm" variant={semFilter === x ? "default" : "outline"} onClick={() => setSemFilter(x)}>
-            {x === "all" ? "All" : semLabel(x)}
-          </Button>
-        ))}
-      </div>
+      {role === "student" ? (
+        profile?.semester && <Badge variant="secondary" className="w-fit">{semLabel(profile.semester)}</Badge>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {["all", ...SEMESTERS].map((x) => (
+            <Button key={x} size="sm" variant={semFilter === x ? "default" : "outline"} onClick={() => setSemFilter(x)}>
+              {x === "all" ? "All" : semLabel(x)}
+            </Button>
+          ))}
+        </div>
+      )}
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filtered.map((f, i) => {
