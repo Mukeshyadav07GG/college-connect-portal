@@ -130,6 +130,19 @@ var list_faculty_directory_default = defineTool4({
 import { createClient as createClient5 } from "npm:@supabase/supabase-js@^2.103.3";
 import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { z as z3 } from "npm:zod@^4.4.3";
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB decoded limit
+const ALLOWED_UPLOAD_MIME = new Set([
+  "application/pdf",
+  "image/png", "image/jpeg", "image/webp", "image/gif",
+  "text/plain", "text/csv",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/zip",
+]);
 function supabaseForUser5(ctx) {
   return createClient5(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
     global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
