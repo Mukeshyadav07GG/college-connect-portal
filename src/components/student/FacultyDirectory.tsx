@@ -39,8 +39,8 @@ interface ChatMsg {
 export const FacultyDirectory = () => {
   const { user, profile } = useAuth();
   const [list, setList] = useState<FacultyCard[]>([]);
-  const [semFilter, setSemFilter] = useState<string>("");
-  useEffect(() => { if (!semFilter) setSemFilter(profile?.semester ?? "all"); }, [profile?.semester]);
+  const [semFilter, setSemFilter] = useState<string>("all");
+  useEffect(() => { if (profile?.semester) setSemFilter(profile.semester); }, [profile?.semester]);
   const [search, setSearch] = useState("");
   const [aboutOpen, setAboutOpen] = useState<FacultyCard | null>(null);
   const [chatOpen, setChatOpen] = useState<FacultyCard | null>(null);
