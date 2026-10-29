@@ -15,6 +15,7 @@ interface FacultyCard {
   name: string;
   role: string | null;
   subjects: string[] | null;
+  semesters?: string[] | null;
   description: string | null;
   experience: string | null;
   qualification: string | null;
@@ -51,7 +52,7 @@ export const FacultyDirectory = () => {
   useEffect(() => {
     (async () => {
       const [{ data: facs }, { data: profs }] = await Promise.all([
-        supabase.from("faculty").select("id,name,role,subjects,description,experience,qualification,contact_email,room_no,available_time,email,avatar_url").order("name"),
+        supabase.from("faculty").select("id,name,role,subjects,semesters,description,experience,qualification,contact_email,room_no,available_time,email,avatar_url").order("name"),
         supabase.rpc("get_profile_directory"),
       ]);
       const profsFiltered = ((profs as any[]) ?? []).filter((p) => p.employee_id);
@@ -66,6 +67,7 @@ export const FacultyDirectory = () => {
           name: f.name,
           role: f.role,
           subjects: f.subjects,
+          semesters: f.semesters ?? null,
           description: f.description,
           experience: f.experience ?? null,
           qualification: f.qualification ?? null,
@@ -125,8 +127,8 @@ export const FacultyDirectory = () => {
     const q = search.trim().toLowerCase();
     const bySem = list.filter((f) => {
       if (!semFilter || semFilter === "all") return true;
-      const sems = (f.subjects ?? []).map(semFromCode).filter(Boolean);
-      return sems.length === 0 ? rankOf(f) < 3 : sems.includes(semFilter);
+      if (f.semesters && f.semesters.length) return f.semesters.includes(semFilter);
+      return (f.subjects ?? []).map(semFromCode).includes(semFilter);
     });
     const base = !q ? bySem : bySem.filter((f) =>
       [f.name, f.role, ...(f.subjects ?? [])].some((v) => v?.toLowerCase().includes(q))
