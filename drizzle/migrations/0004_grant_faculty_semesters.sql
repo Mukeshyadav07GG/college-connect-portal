@@ -1,0 +1,1 @@
+GRANT SELECT (semesters) ON public.faculty TO authenticated, anon;

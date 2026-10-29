@@ -22,6 +22,15 @@ Deno.serve(async (req) => {
     if (!isAdmin) return json({ error: "Only admin can add users" }, 403);
 
     const b = await req.json();
+    if (b.action === "reset_password") {
+      const uid = String(b.user_id ?? "");
+      const pw = String(b.password ?? "");
+      if (!/^[0-9a-f-]{36}$/i.test(uid)) return json({ error: "Invalid user" }, 400);
+      if (pw.length < 6) return json({ error: "Password must be at least 6 characters" }, 400);
+      const { error: e2 } = await admin.auth.admin.updateUserById(uid, { password: pw });
+      if (e2) return json({ error: e2.message }, 400);
+      return json({ ok: true });
+    }
     const role = String(b.role ?? "");
     const loginId = String(b.login_id ?? "").trim();
     const fullName = String(b.full_name ?? "").trim();

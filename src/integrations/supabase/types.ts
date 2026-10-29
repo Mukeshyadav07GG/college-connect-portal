@@ -277,6 +277,7 @@ export type Database = {
           qualification: string | null
           role: string | null
           room_no: string | null
+          semesters: string[] | null
           subjects: string[] | null
         }
         Insert: {
@@ -293,6 +294,7 @@ export type Database = {
           qualification?: string | null
           role?: string | null
           room_no?: string | null
+          semesters?: string[] | null
           subjects?: string[] | null
         }
         Update: {
@@ -309,6 +311,7 @@ export type Database = {
           qualification?: string | null
           role?: string | null
           room_no?: string | null
+          semesters?: string[] | null
           subjects?: string[] | null
         }
         Relationships: []
@@ -802,6 +805,7 @@ export type Database = {
           qualification: string | null
           role: string | null
           room_no: string | null
+          semesters: string[] | null
           subjects: string[] | null
         }[]
         SetofOptions: {

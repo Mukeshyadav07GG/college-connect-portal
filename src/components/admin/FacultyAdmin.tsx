@@ -7,13 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { UserCog, Plus, Pencil, Trash2, Search } from "lucide-react";
-import { SEMESTERS, semLabel, subjectSem } from "@/lib/semesters";
+import { SEMESTERS, semLabel, subjectSem, semFromCode } from "@/lib/semesters";
 
 interface FacultyRow {
   id: string;
   name: string;
   role: string | null;
   subjects: string[] | null;
+  semesters?: string[] | null;
   description: string | null;
   email: string | null;
   contact_email: string | null;
@@ -45,7 +46,8 @@ export const FacultyAdmin = () => {
 
   const openEdit = (r: Partial<FacultyRow>) => {
     const codes = (r.subjects ?? []).map((x) => x.toUpperCase());
-    setPickSems(SEMESTERS.filter((x) => allSubjects.some((s) => codes.includes(s.code.toUpperCase()) && subjectSem(s) === x)));
+    const derived = SEMESTERS.filter((x) => codes.some((c) => semFromCode(c) === x) || allSubjects.some((s) => codes.includes(s.code.toUpperCase()) && subjectSem(s) === x));
+    setPickSems(r.semesters && r.semesters.length ? [...r.semesters] : derived);
     setEditing(r);
   };
 
@@ -65,7 +67,7 @@ export const FacultyAdmin = () => {
     const subjects = Array.isArray(editing.subjects)
       ? editing.subjects
       : String((editing as any).subjects ?? "").split(",").map((s) => s.trim()).filter(Boolean);
-    const payload: any = { ...editing, subjects };
+    const payload: any = { ...editing, subjects, semesters: pickSems };
     delete payload.id;
     Object.keys(payload).forEach((k) => { if (payload[k] === "") payload[k] = null; });
 
