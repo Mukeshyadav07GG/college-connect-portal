@@ -17,7 +17,14 @@ export interface EditableUser {
 export const EditUserDialog = ({ user, onClose, onSaved }: { user: EditableUser | null; onClose: () => void; onSaved: () => void }) => {
   const [f, setF] = useState<EditableUser | null>(user);
   const [saving, setSaving] = useState(false);
-  useEffect(() => setF(user), [user]);
+  const [pw, setPw] = useState("");
+  useEffect(() => { setF(user); setPw(""); }, [user]);
+  const resetPw = async () => {
+    if (!f) return;
+    const { data, error } = await supabase.functions.invoke("admin-create-user", { body: { action: "reset_password", user_id: f.user_id, password: pw } });
+    if (error || (data as any)?.error) { toast.error((data as any)?.error ?? error?.message); return; }
+    toast.success("Password reset"); setPw("");
+  };
   if (!f) return null;
   const set = (k: keyof EditableUser, v: string) => setF({ ...f, [k]: v });
 
@@ -64,6 +71,13 @@ export const EditUserDialog = ({ user, onClose, onSaved }: { user: EditableUser 
             </div>
           )}
           <Button className="w-full" onClick={save} disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button>
+          <div className="border-t border-border pt-3 space-y-2">
+            <Label>New Password (reset)</Label>
+            <div className="flex gap-2">
+              <Input type="text" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Min 6 characters" />
+              <Button variant="outline" onClick={resetPw} disabled={pw.length < 6}>Reset</Button>
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
