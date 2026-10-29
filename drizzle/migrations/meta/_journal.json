@@ -29,6 +29,13 @@
       "when": 1793248391640,
       "tag": "0003_faculty_semesters",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793248463867,
+      "tag": "0004_grant_faculty_semesters",
+      "breakpoints": true
     }
   ]
 }
