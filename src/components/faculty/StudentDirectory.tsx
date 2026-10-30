@@ -10,6 +10,7 @@ import {
   Calendar, Hash, BookOpen, MapPin, User as UserIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import { semFromCode, semLabel } from "@/lib/semesters";
 
 interface StudentProfile {
   user_id: string; full_name: string; email: string | null;
@@ -20,7 +21,8 @@ interface StudentProfile {
 interface Message { id: string; sender_id: string; recipient_id: string; message: string; created_at: string; }
 
 export const StudentDirectory = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const [mySems, setMySems] = useState<string[]>([]);
   const [students, setStudents] = useState<StudentProfile[]>([]);
   const [search, setSearch] = useState("");
   const [profileOpen, setProfileOpen] = useState<StudentProfile | null>(null);
@@ -40,9 +42,18 @@ export const StudentDirectory = () => {
         .not("roll_number", "is", null)
         .order("roll_number");
       if (error) { console.error("Failed to load students:", error); return; }
-      setStudents((profs as StudentProfile[]) ?? []);
+      // Only students of the semesters this faculty teaches
+      const norm = (x?: string | null) => (x ?? "").toLowerCase().replace(/^(mr|mrs|ms|dr|prof)\.?\s+/i, "").replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
+      const { data: fac } = await supabase.from("faculty").select("name,subjects,semesters");
+      const me = (fac ?? []).find((f: any) => norm(f.name) === norm(profile?.full_name));
+      const sems = new Set<string>([
+        ...(((me as any)?.semesters as string[] | null) ?? []),
+        ...(((me as any)?.subjects as string[] | null) ?? []).map((c) => semFromCode(c)).filter(Boolean) as string[],
+      ]);
+      setMySems(Array.from(sems));
+      setStudents(((profs as StudentProfile[]) ?? []).filter((p) => p.semester && sems.has(p.semester)));
     })();
-  }, []);
+  }, [profile?.full_name]);
 
   // Inbox: unread counts + realtime appending into the open chat
   useEffect(() => {
@@ -119,6 +130,7 @@ export const StudentDirectory = () => {
         <div>
           <h1 className="font-display text-3xl font-bold mb-1">My Students</h1>
           <p className="text-muted-foreground text-sm">View a student's profile or message them directly.</p>
+          <p className="text-xs text-muted-foreground mt-1">{mySems.length ? `Aapke semester: ${mySems.map(semLabel).join(", ")}` : "Admin ne aapko abhi koi semester assign nahi kiya hai."}</p>
         </div>
         <div className="relative w-full sm:w-72">
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
