@@ -1,11 +1,12 @@
 import { useEffect, ReactNode, useState } from "react";
+import collegeLogo from "@/assets/knmiet-logo.jpg";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
-  GraduationCap, User, Calendar as CalIcon, Users, FileText, BookOpen,
+  User, Calendar as CalIcon, Users, FileText, BookOpen,
   BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home, CalendarCheck, KeyRound, Wallet, ArrowLeft,
 } from "lucide-react";
 import { FloatingChat } from "@/components/FloatingChat";
@@ -63,8 +64,8 @@ export const StudentLayout = ({ children }: { children?: ReactNode }) => {
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       <Link to="/" className="flex items-center gap-2.5 px-5 py-5 border-b border-border">
-        <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center shadow-glow">
-          <GraduationCap className="w-4 h-4 text-primary-foreground" />
+        <div className="w-9 h-9 rounded-xl bg-card overflow-hidden shadow-glow flex items-center justify-center">
+          <img src={collegeLogo} alt="KNMIET logo" className="w-full h-full object-contain" />
         </div>
         <div>
           <div className="font-display font-bold text-sm leading-tight">KNMIET</div>

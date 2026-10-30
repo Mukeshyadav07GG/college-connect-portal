@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Moon, Sun, LogOut, LayoutDashboard } from "lucide-react";
-import collegeLogo from "@/assets/knmiet-logo.jpg.asset.json";
+import collegeLogo from "@/assets/knmiet-logo.jpg";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { LoginModal } from "./LoginModal";
@@ -48,7 +48,7 @@ export const Navbar = () => {
       <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${scrolled ? "glass-strong py-2" : "py-4 bg-transparent"}`}>
         <div className="container flex items-center justify-between">
           <button onClick={() => scrollTo("hero")} className="flex items-center gap-2.5 group">
-            <img src={collegeLogo.url} alt="KNMIET logo" className="w-10 h-10 rounded-xl bg-card object-contain shadow-glow group-hover:scale-110 transition-transform" />
+            <img src={collegeLogo} alt="KNMIET logo" className="w-10 h-10 rounded-xl bg-card object-contain shadow-glow group-hover:scale-110 transition-transform" />
             <div className="hidden sm:block text-left">
               <div className="font-display font-bold text-sm leading-tight">KNMIET</div>
               <div className="text-[10px] text-muted-foreground leading-tight">Modinagar · AKTU</div>
