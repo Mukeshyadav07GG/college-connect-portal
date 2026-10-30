@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { SUBJECT_FULL_NAMES } from "@/data/courses";
 import { Progress } from "@/components/ui/progress";
+import { normExam } from "@/lib/semesters";
 
 type ExamType = "Sessional 1" | "Sessional 2" | "PUT" | "Semester";
 const EXAM_ORDER: ExamType[] = ["Sessional 1", "Sessional 2", "PUT", "Semester"];
@@ -26,11 +27,17 @@ export const Result = () => {
   const { user } = useAuth();
   const [results, setResults] = useState<ResultRow[]>([]);
   const [detail, setDetail] = useState<ExamType | null>(null);
+  const [names, setNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!user) return;
     supabase.from("results").select("subject_code,exam_type,marks,max_marks").eq("student_id", user.id)
-      .then(({ data }) => setResults((data ?? []) as ResultRow[]));
+      .then(({ data }) => setResults(((data ?? []) as ResultRow[]).map((r) => ({ ...r, exam_type: normExam(r.exam_type) }))));
+    supabase.from("subjects").select("code,name").then(({ data }) => {
+      const m: Record<string, string> = {};
+      (data ?? []).forEach((s: any) => { m[s.code] = s.name; });
+      setNames(m);
+    });
   }, [user]);
 
   const byType = (t: ExamType) => results.filter((r) => r.exam_type === t);
@@ -135,7 +142,6 @@ export const Result = () => {
                   onClick={() => setDetail(t)}
                   className="glass rounded-2xl p-5 text-left hover-lift hover-glow group animate-slide-up disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ animationDelay: `${i * 80}ms` }}
-                  disabled={!total}
                 >
                   <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${EXAM_META[t].gradient} flex items-center justify-center mb-3 group-hover:scale-110 group-hover:rotate-3 transition-all shadow-md`}>
                     <BarChart3 className="w-5 h-5 text-white" />
@@ -192,7 +198,7 @@ export const Result = () => {
               </DialogTitle>
 
               {byType(detail).length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">No marks declared.</div>
+                <div className="text-center py-12 text-muted-foreground">Is exam ke marks abhi faculty ne upload nahi kiye hain.</div>
               ) : (
                 <>
                   <div className="grid grid-cols-3 gap-3 mt-3">
@@ -236,7 +242,7 @@ export const Result = () => {
                       <div key={r.subject_code} className="flex items-center justify-between text-sm glass rounded-lg px-3 py-2">
                         <div>
                           <span className="font-mono font-bold text-primary">{r.subject_code}</span>
-                          <span className="text-muted-foreground ml-2 hidden sm:inline">{SUBJECT_FULL_NAMES[r.subject_code]?.name}</span>
+                          <span className="text-muted-foreground ml-2 hidden sm:inline">{names[r.subject_code] ?? SUBJECT_FULL_NAMES[r.subject_code]?.name}</span>
                         </div>
                         <span className="font-display font-bold">{r.marks} / {r.max_marks}</span>
                       </div>
