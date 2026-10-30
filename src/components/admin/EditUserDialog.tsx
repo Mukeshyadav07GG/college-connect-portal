@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { SEMESTERS, semLabel } from "@/lib/semesters";
+import { SEMESTERS, semLabel, defaultSectionForSem } from "@/lib/semesters";
 
 export interface EditableUser {
   user_id: string; full_name: string; roll_number: string | null; employee_id: string | null;
@@ -62,7 +62,7 @@ export const EditUserDialog = ({ user, onClose, onSaved }: { user: EditableUser 
               <div><Label>Branch</Label><Input value={f.branch ?? ""} onChange={(e) => set("branch", e.target.value)} /></div>
               <div>
                 <Label>Semester</Label>
-                <Select value={f.semester ?? ""} onValueChange={(v) => set("semester", v)}>
+                <Select value={f.semester ?? ""} onValueChange={(v) => setF({ ...f, semester: v, section: defaultSectionForSem(v) })}>
                   <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                   <SelectContent>{SEMESTERS.map((s) => <SelectItem key={s} value={s}>{semLabel(s)}</SelectItem>)}</SelectContent>
                 </Select>

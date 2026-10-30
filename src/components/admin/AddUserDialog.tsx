@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { UserPlus } from "lucide-react";
-import { SEMESTERS, semLabel } from "@/lib/semesters";
+import { SEMESTERS, semLabel, defaultSectionForSem } from "@/lib/semesters";
 
 export const AddUserDialog = ({ onCreated }: { onCreated: () => void }) => {
   const [open, setOpen] = useState(false);
@@ -17,7 +17,7 @@ export const AddUserDialog = ({ onCreated }: { onCreated: () => void }) => {
   const [password, setPassword] = useState("");
   const [branch, setBranch] = useState("CSE");
   const [semester, setSemester] = useState("I");
-  const [section, setSection] = useState("");
+  const [section, setSection] = useState("CS11");
   const [saving, setSaving] = useState(false);
 
   const submit = async () => {
@@ -29,7 +29,7 @@ export const AddUserDialog = ({ onCreated }: { onCreated: () => void }) => {
     const msg = (data as any)?.error ?? (error ? await (error as any).context?.json?.().then((j: any) => j.error).catch(() => error.message) : null);
     if (msg) { toast.error(msg); return; }
     toast.success(`${role} added — login ID: ${loginId}`);
-    setFullName(""); setLoginId(""); setPassword(""); setSection("");
+    setFullName(""); setLoginId(""); setPassword("");
     setOpen(false); onCreated();
   };
 
@@ -61,7 +61,7 @@ export const AddUserDialog = ({ onCreated }: { onCreated: () => void }) => {
               <div><Label>Branch</Label><Input value={branch} onChange={(e) => setBranch(e.target.value)} /></div>
               <div>
                 <Label>Semester</Label>
-                <Select value={semester} onValueChange={setSemester}>
+                <Select value={semester} onValueChange={(v) => { setSemester(v); setSection(defaultSectionForSem(v)); }}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{SEMESTERS.map((s) => <SelectItem key={s} value={s}>{semLabel(s)}</SelectItem>)}</SelectContent>
                 </Select>

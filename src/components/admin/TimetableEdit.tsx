@@ -8,9 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Trash2, Pencil } from "lucide-react";
-import { SEMESTERS, semLabel } from "@/lib/semesters";
+import { SEMESTERS, semLabel, defaultSectionForSem, normDay } from "@/lib/semesters";
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 type Slot = { id?: string; day: string; slot: string; subject_code: string; faculty_name: string; room: string; semester: string; section: string; branch: string };
 
 export const TimetableEdit = () => {
@@ -27,14 +27,14 @@ export const TimetableEdit = () => {
   };
   useEffect(() => { refresh(); }, [sem, section]);
 
-  const openNew = () => setForm({ day: "Mon", slot: "1", subject_code: "", faculty_name: "", room: "", semester: sem, section, branch });
-  const openEdit = (r: any) => setForm({ id: r.id, day: r.day, slot: String(r.slot), subject_code: r.subject_code ?? "", faculty_name: r.faculty_name ?? "", room: r.room ?? "", semester: r.semester, section: r.section, branch: r.branch });
+  const openNew = () => setForm({ day: "Monday", slot: "1", subject_code: "", faculty_name: "", room: "", semester: sem, section, branch });
+  const openEdit = (r: any) => setForm({ id: r.id, day: normDay(r.day), slot: String(r.slot), subject_code: r.subject_code ?? "", faculty_name: r.faculty_name ?? "", room: r.room ?? "", semester: r.semester, section: r.section, branch: r.branch });
 
   const submit = async () => {
     if (!form) return;
     if (!form.section.trim()) { toast.error("Section required"); return; }
     const payload = {
-      branch: form.branch, section: form.section.trim(), semester: form.semester, day: form.day,
+      branch: form.branch, section: form.section.trim().toUpperCase(), semester: form.semester, day: normDay(form.day),
       slot: Number(form.slot), subject_code: form.subject_code.trim() || null, faculty_name: form.faculty_name.trim() || null, room: form.room.trim() || null,
     };
     const { error } = form.id
@@ -58,7 +58,7 @@ export const TimetableEdit = () => {
       <div className="flex justify-between items-start gap-3 flex-wrap">
         <div><h1 className="text-3xl font-bold">Timetable ({semLabel(sem)}{section && ` · ${section}`})</h1><p className="text-muted-foreground">Add, edit or delete class slots for any semester</p>
           <div className="flex gap-2 mt-2 flex-wrap">
-            <Select value={sem} onValueChange={setSem}><SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
+            <Select value={sem} onValueChange={(v) => { setSem(v); setSection(defaultSectionForSem(v)); }}><SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
               <SelectContent>{SEMESTERS.map((x) => <SelectItem key={x} value={x}>{semLabel(x)}</SelectItem>)}</SelectContent></Select>
             <Input className="w-28" value={section} onChange={(e) => setSection(e.target.value.trim())} placeholder="Section" />
             <Input className="w-24" value={branch} onChange={(e) => setBranch(e.target.value)} placeholder="Branch" />
@@ -73,7 +73,7 @@ export const TimetableEdit = () => {
             <div className="space-y-3">
               <div className="grid grid-cols-3 gap-2">
                 <div><Label>Semester</Label>
-                  <Select value={form.semester} onValueChange={(v) => set("semester", v)}><SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select value={form.semester} onValueChange={(v) => setForm({ ...form, semester: v, section: defaultSectionForSem(v) })}><SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>{SEMESTERS.map((x) => <SelectItem key={x} value={x}>{semLabel(x)}</SelectItem>)}</SelectContent></Select></div>
                 <div><Label>Section</Label><Input value={form.section} onChange={(e) => set("section", e.target.value)} /></div>
                 <div><Label>Branch</Label><Input value={form.branch} onChange={(e) => set("branch", e.target.value)} /></div>
@@ -97,7 +97,7 @@ export const TimetableEdit = () => {
         <div className="space-y-1">
           {rows.map((r) => (
             <div key={r.id} className="flex justify-between items-center p-2 rounded hover:bg-accent text-sm">
-              <span>{r.day} • Slot {r.slot} — <strong>{r.subject_code}</strong> {r.faculty_name && `• ${r.faculty_name}`} {r.room && `• ${r.room}`} <span className="text-muted-foreground">• {r.section}</span></span>
+              <span>{normDay(r.day)} • Slot {r.slot} — <strong>{r.subject_code}</strong> {r.faculty_name && `• ${r.faculty_name}`} {r.room && `• ${r.room}`} <span className="text-muted-foreground">• {r.section}</span></span>
               <div className="flex">
                 <Button variant="ghost" size="sm" onClick={() => openEdit(r)}><Pencil className="h-4 w-4" /></Button>
                 <Button variant="ghost" size="sm" onClick={() => remove(r.id)}><Trash2 className="h-4 w-4" /></Button>
