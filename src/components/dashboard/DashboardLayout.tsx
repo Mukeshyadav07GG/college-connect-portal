@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, LogOut, Moon, Sun, KeyRound } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { FloatingChat } from "@/components/FloatingChat";
 import { toast } from "sonner";
 
 interface NavItem { to: string; label: string; icon: ReactNode; }
@@ -96,7 +95,6 @@ export const DashboardLayout = ({ children, title, items, requiredRole }: Props)
           {children}
         </div>
       </main>
-      <FloatingChat />
     </div>
   );
 };

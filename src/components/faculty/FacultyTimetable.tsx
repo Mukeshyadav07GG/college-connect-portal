@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TIME_SLOTS, DAYS, SUBJECT_FULL_NAMES } from "@/data/courses";
 import { Clock, Coffee, Utensils, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { SEMESTERS, semLabel } from "@/lib/semesters";
+import { SEMESTERS, semLabel, normDay } from "@/lib/semesters";
 
 interface TTRow {
   day: string;
@@ -52,7 +52,7 @@ export const FacultyTimetable = () => {
 
   const isMine = (faculty?: string | null) => !!myName && norm(faculty) === myName;
 
-  const lookup = (day: string, slot: number) => rows.find((r) => r.day === day && r.slot === slot);
+  const lookup = (day: string, slot: number) => rows.find((r) => normDay(r.day) === day && r.slot === slot);
 
   const myCount = useMemo(() => rows.filter((r) => isMine(r.faculty_name)).length, [rows, myName]);
 

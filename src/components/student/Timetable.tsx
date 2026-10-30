@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TIME_SLOTS, DAYS, SUBJECT_FULL_NAMES } from "@/data/courses";
 import { Clock, Coffee, Utensils } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { normDay } from "@/lib/semesters";
 
 interface TTRow {
   day: string;
@@ -35,14 +36,14 @@ export const Timetable = () => {
     setLoading(true);
     let q = supabase.from("timetable").select("day,slot,subject_code,faculty_name,room");
     if (sem) q = q.eq("semester", sem);
-    if (section) q = q.eq("section", section);
+    if (section) q = q.ilike("section", section.trim());
     q.then(({ data }) => {
         setRows(data ?? []);
         setLoading(false);
       });
   }, [sem, section, role, profile]);
 
-  const lookup = (day: string, slot: number) => rows.find((r) => r.day === day && r.slot === slot);
+  const lookup = (day: string, slot: number) => rows.find((r) => normDay(r.day) === day && r.slot === slot);
   const usedCodes = new Set(rows.map((r) => r.subject_code).filter(Boolean) as string[]);
   const legend = Object.entries(SUBJECT_FULL_NAMES).filter(([c]) => usedCodes.has(c));
 

@@ -8,3 +8,18 @@ describe("semFromCode", () => {
   it("BCS-801 is Sem VIII", () => expect(semFromCode("BCS-801")).toBe("VIII"));
   it("elective KCS-062 is Sem VI", () => expect(semFromCode("KCS-062")).toBe("VI"));
 });
+
+import { defaultSectionForSem, normDay, normExam } from "./semesters";
+describe("section, day and exam mapping", () => {
+  it("maps semesters to batch sections", () => {
+    expect(defaultSectionForSem("I")).toBe("CS11");
+    expect(defaultSectionForSem("II")).toBe("CS11");
+    expect(defaultSectionForSem("IV")).toBe("CS21");
+    expect(defaultSectionForSem("V")).toBe("CS31");
+    expect(defaultSectionForSem("VI")).toBe("CS31");
+    expect(defaultSectionForSem("VII")).toBe("CS41");
+    expect(defaultSectionForSem("VIII")).toBe("CS41");
+  });
+  it("normalizes short day names", () => { expect(normDay("Mon")).toBe("Monday"); expect(normDay("Tuesday")).toBe("Tuesday"); });
+  it("normalizes exam types", () => { expect(normExam("sessional1")).toBe("Sessional 1"); expect(normExam("put")).toBe("PUT"); });
+});
