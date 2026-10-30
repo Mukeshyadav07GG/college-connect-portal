@@ -126,15 +126,16 @@ export const FacultyDirectory = () => {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const bySem = list.filter((f) => {
-      if (!semFilter || semFilter === "all") return true;
-      if (f.semesters && f.semesters.length) return f.semesters.includes(semFilter);
-      return (f.subjects ?? []).map(semFromCode).includes(semFilter);
+      if (role === "student") { if (!profile?.semester) return false; } else if (!semFilter || semFilter === "all") return true;
+      const want = role === "student" ? profile!.semester! : semFilter;
+      if (f.semesters && f.semesters.length) return f.semesters.includes(want);
+      return (f.subjects ?? []).map(semFromCode).includes(want);
     });
     const base = !q ? bySem : bySem.filter((f) =>
       [f.name, f.role, ...(f.subjects ?? [])].some((v) => v?.toLowerCase().includes(q))
     );
     return [...base].sort((a, b) => rankOf(a) - rankOf(b) || a.name.localeCompare(b.name));
-  }, [list, search, semFilter]);
+  }, [list, search, semFilter, role, profile?.semester]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
