@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import collegeLogo from "@/assets/knmiet-logo.jpg";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { idToEmail, useAuth } from "@/contexts/AuthContext";
@@ -75,7 +76,10 @@ const Login = () => {
     <main className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-md glass-strong rounded-2xl overflow-hidden border border-glass-border">
         <div className="bg-gradient-hero p-6 text-primary-foreground">
-          <h1 className="text-2xl font-display font-bold">Sign in to KNMIET</h1>
+          <div className="flex items-center gap-3">
+            <img src={collegeLogo} alt="KNMIET logo" className="w-11 h-11 rounded-xl bg-white/90 object-contain p-1" />
+            <h1 className="text-2xl font-display font-bold">Sign in to KNMIET</h1>
+          </div>
           <p className="text-sm text-primary-foreground/90 mt-1">
             {next ? "Sign in to continue to the requested page." : "Sign in with your ID & password."}
           </p>

@@ -1,11 +1,12 @@
 import { useEffect, ReactNode, useState } from "react";
+import collegeLogo from "@/assets/knmiet-logo.jpg";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
-  GraduationCap, User, Calendar as CalIcon, Users, FileText, BookOpen,
+  User, Calendar as CalIcon, Users, FileText, BookOpen,
   BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home, CalendarCheck, KeyRound, Wallet, ArrowLeft,
 } from "lucide-react";
 import { FloatingChat } from "@/components/FloatingChat";
