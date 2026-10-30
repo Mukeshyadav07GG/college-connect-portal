@@ -9,7 +9,6 @@ import {
   User, Calendar as CalIcon, Users, FileText, BookOpen,
   BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home, CalendarCheck, KeyRound, Wallet, ArrowLeft,
 } from "lucide-react";
-import { FloatingChat } from "@/components/FloatingChat";
 
 interface NavItem { to: string; label: string; icon: any; }
 
@@ -164,7 +163,6 @@ export const StudentLayout = ({ children }: { children?: ReactNode }) => {
           </div>
         </main>
       </div>
-      <FloatingChat />
     </div>
   );
 };
