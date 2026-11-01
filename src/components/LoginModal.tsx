@@ -62,15 +62,16 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
       if (error) throw error;
 
       let resolvedRole: Role = role;
+      let displayName = ROLE_META[resolvedRole].label;
       if (data.user) {
-        const { data: rr } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", data.user.id)
-          .maybeSingle();
+        const [{ data: rr }, { data: prof }] = await Promise.all([
+          supabase.from("user_roles").select("role").eq("user_id", data.user.id).maybeSingle(),
+          supabase.from("profiles").select("full_name").eq("user_id", data.user.id).maybeSingle(),
+        ]);
         if (rr?.role) resolvedRole = rr.role as Role;
+        displayName = prof?.full_name?.trim() || ROLE_META[resolvedRole].label;
       }
-      toast.success(`Welcome back, ${ROLE_META[resolvedRole].label}!`);
+      toast.success(`Welcome back, ${displayName}! 👋`);
       onOpenChange(false);
       setTimeout(() => navigate(ROLE_META[resolvedRole].route), 150);
     } catch (err: any) {
