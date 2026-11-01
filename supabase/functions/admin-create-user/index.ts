@@ -67,6 +67,10 @@ Deno.serve(async (req) => {
       await admin.from("user_roles").delete().eq("user_id", id);
       await admin.from("user_roles").insert({ user_id: id, role });
     }
+    if (session || activeSession) {
+      const { error: sErr } = await admin.from("profiles").update({ session, active_session: activeSession }).eq("user_id", id);
+      if (sErr) console.error("session update failed", sErr.message);
+    }
     return json({ ok: true, user_id: id });
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
