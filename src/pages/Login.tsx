@@ -57,11 +57,16 @@ const Login = () => {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       let resolved: Role = role;
+      let displayName = ROLE_META[resolved].label;
       if (data.user) {
-        const { data: rr } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id).maybeSingle();
+        const [{ data: rr }, { data: prof }] = await Promise.all([
+          supabase.from("user_roles").select("role").eq("user_id", data.user.id).maybeSingle(),
+          supabase.from("profiles").select("full_name").eq("user_id", data.user.id).maybeSingle(),
+        ]);
         if (rr?.role) resolved = rr.role as Role;
+        displayName = prof?.full_name?.trim() || ROLE_META[resolved].label;
       }
-      toast.success(`Welcome back, ${ROLE_META[resolved].label}!`);
+      toast.success(`Welcome back, ${displayName}! 👋`);
       const dest = next ?? ROLE_META[resolved].route;
       setTimeout(() => navigate(dest, { replace: true }), 100);
     } catch (err: any) {

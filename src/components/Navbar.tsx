@@ -73,6 +73,9 @@ export const Navbar = () => {
                 <Button onClick={goToDashboard} variant="outline" size="sm" className="hidden sm:inline-flex">
                   <LayoutDashboard className="w-4 h-4 mr-1.5" /> Dashboard
                 </Button>
+                <Button onClick={goToDashboard} variant="ghost" size="icon" className="sm:hidden" aria-label="Go to Dashboard">
+                  <LayoutDashboard className="w-4 h-4" />
+                </Button>
                 <Button onClick={signOut} variant="ghost" size="icon" aria-label="Sign out">
                   <LogOut className="w-4 h-4" />
                 </Button>
@@ -91,6 +94,14 @@ export const Navbar = () => {
               </SheetTrigger>
               <SheetContent side="right" className="glass-strong w-72">
                 <nav className="flex flex-col gap-1 mt-8">
+                  {user && (
+                    <button
+                      onClick={() => { setMobileOpen(false); goToDashboard(); }}
+                      className="px-4 py-3 text-left font-semibold text-primary bg-primary/10 rounded-lg mb-2 flex items-center gap-2"
+                    >
+                      <LayoutDashboard className="w-4 h-4" /> Go to Dashboard
+                    </button>
+                  )}
                   {NAV_LINKS.map((l) => (
                     <button key={l.id} onClick={() => scrollTo(l.id)} className="px-4 py-3 text-left font-medium hover:bg-primary/10 rounded-lg transition-colors">
                       {l.label}

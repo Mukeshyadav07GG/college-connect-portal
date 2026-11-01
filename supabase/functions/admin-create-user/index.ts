@@ -52,6 +52,8 @@ Deno.serve(async (req) => {
       roll_number: role === "student" ? loginId : null,
       employee_id: role !== "student" ? loginId : null,
     };
+    const session = b.session ? String(b.session).slice(0, 40) : null;
+    const activeSession = b.active_session ? String(b.active_session).slice(0, 40) : null;
 
     const { data: created, error } = await admin.auth.admin.createUser({
       email, password, email_confirm: true, user_metadata: meta,
@@ -64,6 +66,10 @@ Deno.serve(async (req) => {
     if (role !== "student") {
       await admin.from("user_roles").delete().eq("user_id", id);
       await admin.from("user_roles").insert({ user_id: id, role });
+    }
+    if (session || activeSession) {
+      const { error: sErr } = await admin.from("profiles").update({ session, active_session: activeSession }).eq("user_id", id);
+      if (sErr) console.error("session update failed", sErr.message);
     }
     return json({ ok: true, user_id: id });
   } catch (e) {
