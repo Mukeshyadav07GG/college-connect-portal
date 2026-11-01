@@ -52,6 +52,8 @@ Deno.serve(async (req) => {
       roll_number: role === "student" ? loginId : null,
       employee_id: role !== "student" ? loginId : null,
     };
+    const session = b.session ? String(b.session).slice(0, 40) : null;
+    const activeSession = b.active_session ? String(b.active_session).slice(0, 40) : null;
 
     const { data: created, error } = await admin.auth.admin.createUser({
       email, password, email_confirm: true, user_metadata: meta,

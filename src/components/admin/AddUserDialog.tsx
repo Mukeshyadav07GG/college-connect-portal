@@ -18,18 +18,20 @@ export const AddUserDialog = ({ onCreated }: { onCreated: () => void }) => {
   const [branch, setBranch] = useState("CSE");
   const [semester, setSemester] = useState("I");
   const [section, setSection] = useState("CS11");
+  const [session, setSession] = useState("");
+  const [activeSession, setActiveSession] = useState("");
   const [saving, setSaving] = useState(false);
 
   const submit = async () => {
     setSaving(true);
     const { data, error } = await supabase.functions.invoke("admin-create-user", {
-      body: { role, full_name: fullName, login_id: loginId, password, branch, semester: role === "admin" ? null : semester, section: section || null },
+      body: { role, full_name: fullName, login_id: loginId, password, branch, semester: role === "admin" ? null : semester, section: section || null, session: session.trim() || null, active_session: activeSession.trim() || null },
     });
     setSaving(false);
     const msg = (data as any)?.error ?? (error ? await (error as any).context?.json?.().then((j: any) => j.error).catch(() => error.message) : null);
     if (msg) { toast.error(msg); return; }
     toast.success(`${role} added — login ID: ${loginId}`);
-    setFullName(""); setLoginId(""); setPassword("");
+    setFullName(""); setLoginId(""); setPassword(""); setSession(""); setActiveSession("");
     setOpen(false); onCreated();
   };
 
@@ -69,6 +71,10 @@ export const AddUserDialog = ({ onCreated }: { onCreated: () => void }) => {
               <div><Label>Section</Label><Input value={section} onChange={(e) => setSection(e.target.value)} placeholder="CS31" /></div>
             </div>
           )}
+          <div className="grid grid-cols-2 gap-2">
+            <div><Label>Session (e.g. 2023 - 2027)</Label><Input value={session} onChange={(e) => setSession(e.target.value)} placeholder="2023 - 2027" /></div>
+            <div><Label>Active Session</Label><Input value={activeSession} onChange={(e) => setActiveSession(e.target.value)} placeholder="2026 - 2027" /></div>
+          </div>
           <Button className="w-full" onClick={submit} disabled={saving}>{saving ? "Adding…" : "Add User"}</Button>
         </div>
       </DialogContent>
