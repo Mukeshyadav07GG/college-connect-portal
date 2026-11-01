@@ -11,6 +11,7 @@ import { SEMESTERS, semLabel, defaultSectionForSem } from "@/lib/semesters";
 export interface EditableUser {
   user_id: string; full_name: string; roll_number: string | null; employee_id: string | null;
   branch: string | null; semester: string | null; section: string | null; phone?: string | null;
+  session?: string | null; active_session?: string | null;
   role: "student" | "faculty" | "admin" | null;
 }
 
@@ -39,6 +40,8 @@ export const EditUserDialog = ({ user, onClose, onSaved }: { user: EditableUser 
       semester: f.role === "admin" ? null : f.semester,
       section: f.section?.trim() || null,
       phone: f.phone?.trim() || null,
+      session: f.session?.trim() || null,
+      active_session: f.active_session?.trim() || null,
     }).eq("user_id", f.user_id);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
@@ -57,6 +60,10 @@ export const EditUserDialog = ({ user, onClose, onSaved }: { user: EditableUser 
             <div><Label>Employee ID</Label><Input value={f.employee_id ?? ""} onChange={(e) => set("employee_id", e.target.value)} /></div>
           )}
           <div><Label>Phone</Label><Input value={f.phone ?? ""} onChange={(e) => set("phone", e.target.value)} /></div>
+          <div className="grid grid-cols-2 gap-2">
+            <div><Label>Session (e.g. 2023 - 2027)</Label><Input value={f.session ?? ""} onChange={(e) => set("session", e.target.value)} placeholder="2023 - 2027" /></div>
+            <div><Label>Active Session</Label><Input value={f.active_session ?? ""} onChange={(e) => set("active_session", e.target.value)} placeholder="2026 - 2027" /></div>
+          </div>
           {f.role !== "admin" && (
             <div className="grid grid-cols-3 gap-2">
               <div><Label>Branch</Label><Input value={f.branch ?? ""} onChange={(e) => set("branch", e.target.value)} /></div>
