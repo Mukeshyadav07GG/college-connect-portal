@@ -424,6 +424,7 @@ export type Database = {
       profiles: {
         Row: {
           aadhar: string | null
+          active_session: string | null
           avatar_url: string | null
           bio: string | null
           branch: string | null
@@ -439,12 +440,14 @@ export type Database = {
           roll_number: string | null
           section: string | null
           semester: string | null
+          session: string | null
           updated_at: string
           user_id: string
           year: string | null
         }
         Insert: {
           aadhar?: string | null
+          active_session?: string | null
           avatar_url?: string | null
           bio?: string | null
           branch?: string | null
@@ -460,12 +463,14 @@ export type Database = {
           roll_number?: string | null
           section?: string | null
           semester?: string | null
+          session?: string | null
           updated_at?: string
           user_id: string
           year?: string | null
         }
         Update: {
           aadhar?: string | null
+          active_session?: string | null
           avatar_url?: string | null
           bio?: string | null
           branch?: string | null
@@ -481,6 +486,7 @@ export type Database = {
           roll_number?: string | null
           section?: string | null
           semester?: string | null
+          session?: string | null
           updated_at?: string
           user_id?: string
           year?: string | null
