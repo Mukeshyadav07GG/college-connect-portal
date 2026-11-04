@@ -22,7 +22,7 @@ export const Profile = () => {
     try {
       const ext = f.name.split(".").pop() ?? "png";
       const path = `${user.id}/avatar-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("avatars").upload(path, f, { upsert: true, contentType: f.type });
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, f, { contentType: f.type });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
       const { error: updErr } = await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("user_id", user.id);

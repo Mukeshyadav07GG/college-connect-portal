@@ -86,7 +86,7 @@ export const UserManagement = () => {
     try {
       const ext = file.name.split(".").pop() ?? "png";
       const path = `${photoUser.user_id}/avatar-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { contentType: file.type });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
       const { error: updErr } = await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("user_id", photoUser.user_id);
