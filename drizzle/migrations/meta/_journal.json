@@ -43,6 +43,13 @@
       "when": 1793509702791,
       "tag": "0005_profile_sessions",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793925482187,
+      "tag": "0006_timetable_unique_per_semester",
+      "breakpoints": true
     }
   ]
 }

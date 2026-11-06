@@ -1,0 +1,2 @@
+ALTER TABLE public.timetable DROP CONSTRAINT IF EXISTS timetable_section_day_slot_key;
+ALTER TABLE public.timetable ADD CONSTRAINT timetable_sem_section_day_slot_key UNIQUE (semester, section, day, slot);
