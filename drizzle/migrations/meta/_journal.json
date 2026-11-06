@@ -50,6 +50,13 @@
       "when": 1793925482187,
       "tag": "0006_timetable_unique_per_semester",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793925924596,
+      "tag": "0007_lock_avatar_for_non_admin",
+      "breakpoints": true
     }
   ]
 }

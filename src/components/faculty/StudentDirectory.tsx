@@ -1,3 +1,4 @@
+import { UserAvatar } from "@/components/UserAvatar";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -270,9 +271,7 @@ export const StudentDirectory = () => {
                 <DialogTitle className="sr-only">{profileOpen.full_name}</DialogTitle>
                 <DialogDescription className="sr-only">Student profile details</DialogDescription>
                 <div className="flex items-center gap-3">
-                  <div className="h-14 w-14 rounded-full gradient-bg flex items-center justify-center text-primary-foreground font-bold text-xl shadow-glow">
-                    {profileOpen.full_name?.charAt(0)}
-                  </div>
+                  <UserAvatar name={profileOpen.full_name} src={profileOpen.avatar_url} className="h-14 w-14 text-xl shadow-glow" />
                   <div className="min-w-0">
                     <div className="font-display text-lg font-bold truncate">{profileOpen.full_name}</div>
                     <div className="text-xs text-muted-foreground font-mono">{profileOpen.roll_number}</div>
@@ -306,9 +305,7 @@ export const StudentDirectory = () => {
           {chatOpen && (
             <>
               <div className="flex items-center gap-3 p-3 border-b border-border bg-gradient-to-r from-primary/15 to-purple-500/10">
-                <div className="h-9 w-9 rounded-full gradient-bg flex items-center justify-center text-primary-foreground font-bold text-sm">
-                  {chatOpen.full_name?.charAt(0)}
-                </div>
+                <UserAvatar name={chatOpen.full_name} src={chatOpen.avatar_url} className="h-9 w-9 text-sm" />
                 <div className="flex-1 min-w-0">
                   <DialogTitle className="text-sm font-semibold truncate">{chatOpen.full_name}</DialogTitle>
                   <DialogDescription className="text-[11px] text-muted-foreground font-mono truncate">

@@ -1,3 +1,4 @@
+import { UserAvatar } from "@/components/UserAvatar";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -192,9 +193,7 @@ export const FacultyDirectory = () => {
                 </Badge>
               )}
               <div className="flex items-center gap-3 mb-3 mt-1">
-                <div className="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-primary-foreground font-bold shadow-glow">
-                  {f.name.charAt(0)}
-                </div>
+                <UserAvatar name={f.name} src={f.avatar_url} className="w-12 h-12 shadow-glow" />
                 <div className="min-w-0">
                   <div className="font-display font-bold text-sm truncate">{f.name}</div>
                   <div className="text-[11px] text-muted-foreground truncate">{f.role ?? "Faculty"}</div>
@@ -235,9 +234,7 @@ export const FacultyDirectory = () => {
                 <DialogTitle className="sr-only">{aboutOpen.name}</DialogTitle>
                 <DialogDescription className="sr-only">Faculty profile details</DialogDescription>
                 <div className="flex items-center gap-3">
-                  <div className="h-14 w-14 rounded-full gradient-bg flex items-center justify-center text-primary-foreground font-bold text-xl shadow-glow">
-                    {aboutOpen.name.charAt(0)}
-                  </div>
+                  <UserAvatar name={aboutOpen.name} src={aboutOpen.avatar_url} className="h-14 w-14 text-xl shadow-glow" />
                   <div className="min-w-0">
                     <div className="font-display text-lg font-bold truncate">{aboutOpen.name}</div>
                     <div className="text-xs text-primary font-medium truncate">{aboutOpen.role ?? "Faculty"}</div>
@@ -378,9 +375,7 @@ const ChatDialog = ({
         {faculty && (
           <>
             <div className="bg-gradient-hero p-4 text-primary-foreground flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold">
-                {faculty.name.charAt(0)}
-              </div>
+              <UserAvatar name={faculty.name} src={faculty.avatar_url} className="w-10 h-10" />
               <div className="min-w-0">
                 <DialogTitle className="text-base font-display truncate">{faculty.name}</DialogTitle>
                 <DialogDescription className="text-xs opacity-90 truncate">{faculty.role}</DialogDescription>

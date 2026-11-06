@@ -1,3 +1,4 @@
+import { UserAvatar } from "@/components/UserAvatar";
 import { useEffect, ReactNode, useState } from "react";
 import collegeLogo from "@/assets/knmiet-logo.jpg";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
@@ -151,9 +152,9 @@ export const StudentLayout = ({ children }: { children?: ReactNode }) => {
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Roll No.</div>
               <div className="text-xs font-mono font-semibold">{profile?.roll_number ?? "—"}</div>
             </div>
-            <div className="w-9 h-9 rounded-full gradient-bg flex items-center justify-center text-primary-foreground font-bold text-sm shadow-glow">
-              {(profile?.full_name ?? "S").charAt(0).toUpperCase()}
-            </div>
+            <Link to="/student/profile" aria-label="My Profile">
+              <UserAvatar name={profile?.full_name} src={profile?.avatar_url} className="w-9 h-9 text-sm shadow-glow" />
+            </Link>
           </div>
         </header>
 
