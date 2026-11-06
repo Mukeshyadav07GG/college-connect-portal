@@ -1,55 +1,15 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import { useAvatarUpload } from "@/hooks/useAvatarUpload";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { User, Mail, Phone, Hash, BookOpen, GraduationCap, MapPin, ClipboardCheck, Award, Wallet, ArrowRight, Camera, Trash2, Loader2, CalendarDays, CalendarClock } from "lucide-react";
+import { User, Mail, Phone, Hash, BookOpen, GraduationCap, MapPin, ClipboardCheck, Award, Wallet, ArrowRight, Camera, Loader2, CalendarDays, CalendarClock } from "lucide-react";
 
 export const Profile = () => {
-  const { profile, user, refreshProfile } = useAuth();
+  const { profile, user } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-
+  const { upload, uploading, canUpload } = useAvatarUpload();
   const onPick = () => fileRef.current?.click();
-
-  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    e.target.value = "";
-    if (!f || !user) return;
-    if (!f.type.startsWith("image/")) return toast.error("Sirf image file select karein");
-    if (f.size > 2 * 1024 * 1024) return toast.error("Photo 2MB se chhoti honi chahiye");
-    setUploading(true);
-    try {
-      const ext = f.name.split(".").pop() ?? "png";
-      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("avatars").upload(path, f, { contentType: f.type });
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
-      const { error: updErr } = await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("user_id", user.id);
-      if (updErr) throw updErr;
-      await refreshProfile();
-      toast.success("Profile photo update ho gaya 👍");
-    } catch (err: any) {
-      toast.error(err?.message ?? "Upload failed");
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const removePhoto = async () => {
-    if (!user) return;
-    setUploading(true);
-    try {
-      const { error } = await supabase.from("profiles").update({ avatar_url: null }).eq("user_id", user.id);
-      if (error) throw error;
-      await refreshProfile();
-      toast.success("Photo hata diya gaya");
-    } catch (err: any) {
-      toast.error(err?.message ?? "Remove failed");
-    } finally {
-      setUploading(false);
-    }
-  };
+  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => { const f = e.target.files?.[0]; e.target.value = ""; upload(f); };
 
   const fields = [
     { icon: User, label: "Full Name", value: profile?.full_name },
@@ -86,22 +46,14 @@ export const Profile = () => {
                   {(profile?.full_name ?? "S").charAt(0).toUpperCase()}
                 </div>
               )}
-              <button
-                onClick={onPick}
-                disabled={uploading}
-                aria-label="Upload profile photo"
-                className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-glow hover:scale-110 transition-transform disabled:opacity-60"
-              >
-                {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
-              </button>
-              {profile?.avatar_url && (
+              {canUpload && (
                 <button
-                  onClick={removePhoto}
+                  onClick={onPick}
                   disabled={uploading}
-                  aria-label="Remove profile photo"
-                  className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow hover:scale-110 transition-transform disabled:opacity-60"
+                  aria-label="Upload profile photo"
+                  className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-glow hover:scale-110 transition-transform disabled:opacity-60"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
                 </button>
               )}
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFile} />
