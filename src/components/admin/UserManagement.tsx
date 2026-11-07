@@ -105,6 +105,22 @@ export const UserManagement = () => {
     else { toast.success("Removed"); setPhotoUser(null); load(); }
   };
 
+  const [delUser, setDelUser] = useState<UserRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const deleteUser = async () => {
+    if (!delUser) return;
+    setDeleting(true);
+    const { data, error } = await supabase.functions.invoke("admin-create-user", {
+      body: { action: "delete_user", user_id: delUser.user_id },
+    });
+    setDeleting(false);
+    const msg = (data as any)?.error ?? (error ? await (error as any).context?.json?.().then((j: any) => j.error).catch(() => error.message) : null);
+    if (msg) { toast.error(msg); return; }
+    toast.success(`${delUser.full_name} ka account delete ho gaya`);
+    setDelUser(null);
+    load();
+  };
+
   const filtered = users.filter((u) => {
     if (filter !== "all" && u.role !== filter) return false;
     if (semF !== "all" && u.semester !== semF) return false;
@@ -198,12 +214,30 @@ export const UserManagement = () => {
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Button size="sm" variant="outline" className="h-8 text-destructive" onClick={() => setDelUser(u)} aria-label={`Delete ${u.full_name}`}>
+                    <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
         )}
       </Card>
+
+      <Dialog open={!!delUser} onOpenChange={(o) => !o && setDelUser(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Account delete karein?</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">{delUser?.full_name}</span> ({delUser?.roll_number ?? delUser?.employee_id ?? delUser?.email}) ka account aur uska attendance, result, fees ka data hamesha ke liye delete ho jayega. Ye wapas nahi aayega.
+          </p>
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={() => setDelUser(null)} disabled={deleting}>Cancel</Button>
+            <Button variant="destructive" onClick={deleteUser} disabled={deleting}>
+              {deleting ? "Deleting…" : "Haan, Delete karein"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!photoUser} onOpenChange={(o) => !o && setPhotoUser(null)}>
         <DialogContent className="max-w-md">

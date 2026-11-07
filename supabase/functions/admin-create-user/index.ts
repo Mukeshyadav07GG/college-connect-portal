@@ -31,6 +31,33 @@ Deno.serve(async (req) => {
       if (e2) return json({ error: e2.message }, 400);
       return json({ ok: true });
     }
+    if (b.action === "delete_user") {
+      const uid = String(b.user_id ?? "");
+      if (!/^[0-9a-f-]{36}$/i.test(uid)) return json({ error: "Invalid user" }, 400);
+      if (uid === u.user.id) return json({ error: "Aap apna khud ka account delete nahi kar sakte" }, 400);
+      // Clean up rows that reference this user so the account can be removed
+      await Promise.all([
+        admin.from("attendance").delete().eq("student_id", uid),
+        admin.from("results").delete().eq("student_id", uid),
+        admin.from("assignment_submissions").delete().eq("student_id", uid),
+        admin.from("chat_messages").delete().or(`sender_id.eq.${uid},recipient_id.eq.${uid}`),
+        admin.from("student_fees").delete().eq("student_id", uid),
+        admin.from("student_documents").delete().eq("student_id", uid),
+        admin.from("hostel_allocations").delete().eq("student_id", uid),
+        admin.from("syllabus_problems").delete().eq("student_id", uid),
+        admin.from("active_sessions").delete().eq("user_id", uid),
+        admin.from("login_requests").delete().eq("user_id", uid),
+        admin.from("attendance").update({ marked_by: null }).eq("marked_by", uid),
+        admin.from("announcements").update({ created_by: null }).eq("created_by", uid),
+        admin.from("assignments").update({ created_by: null }).eq("created_by", uid),
+        admin.from("hostel_images").update({ uploaded_by: null }).eq("uploaded_by", uid),
+      ]);
+      await admin.from("user_roles").delete().eq("user_id", uid);
+      await admin.from("profiles").delete().eq("user_id", uid);
+      const { error: dErr } = await admin.auth.admin.deleteUser(uid);
+      if (dErr) return json({ error: dErr.message }, 400);
+      return json({ ok: true });
+    }
     const role = String(b.role ?? "");
     const loginId = String(b.login_id ?? "").trim();
     const fullName = String(b.full_name ?? "").trim();
