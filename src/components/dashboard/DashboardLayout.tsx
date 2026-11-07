@@ -1,3 +1,4 @@
+import { UserAvatar } from "@/components/UserAvatar";
 import { ReactNode, useEffect, useState } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth, AppRole } from "@/contexts/AuthContext";
@@ -42,7 +43,10 @@ export const DashboardLayout = ({ children, title, items, requiredRole }: Props)
     <aside className="w-64 h-full bg-card/50 backdrop-blur-xl border-r border-border flex flex-col">
       <div className="p-6 border-b border-border">
         <h2 className="text-lg font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">{title}</h2>
-        <p className="text-xs text-muted-foreground mt-1">{profile.full_name}</p>
+        <div className="flex items-center gap-2 mt-3">
+          <UserAvatar name={profile.full_name} src={profile.avatar_url} className="w-9 h-9 text-sm" />
+          <p className="text-xs text-muted-foreground truncate">{profile.full_name}</p>
+        </div>
       </div>
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {items.map((item) => (
