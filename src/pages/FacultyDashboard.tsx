@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { ClipboardCheck, FileText, Award, LayoutDashboard, Inbox, Users2, Wallet, BookOpen, Calendar, Megaphone, PartyPopper } from "lucide-react";
+import { ClipboardCheck, FileText, Award, LayoutDashboard, Inbox, Users2, Wallet, BookOpen, Calendar, Megaphone, PartyPopper, UserCircle } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsOverview } from "@/components/dashboard/StatsOverview";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,11 +14,13 @@ const StudentDirectory = lazy(() => import("@/components/faculty/StudentDirector
 const FeesManager = lazy(() => import("@/components/fees/FeesManager").then(m => ({ default: m.FeesManager })));
 const Syllabus = lazy(() => import("@/components/student/Syllabus").then(m => ({ default: m.Syllabus })));
 const FacultyTimetable = lazy(() => import("@/components/faculty/FacultyTimetable").then(m => ({ default: m.FacultyTimetable })));
+const FacultyProfile = lazy(() => import("@/components/faculty/FacultyProfile").then(m => ({ default: m.FacultyProfile })));
 const AnnouncementsAdmin = lazy(() => import("@/components/admin/AnnouncementsAdmin").then(m => ({ default: m.AnnouncementsAdmin })));
 const EventsAdmin = lazy(() => import("@/components/admin/EventsAdmin").then(m => ({ default: m.EventsAdmin })));
 
 const baseItems = [
   { to: "/faculty", label: "Overview", icon: <LayoutDashboard className="h-4 w-4" /> },
+  { to: "/faculty/profile", label: "My Profile", icon: <UserCircle className="h-4 w-4" /> },
   { to: "/faculty/timetable", label: "Time Table", icon: <Calendar className="h-4 w-4" /> },
   { to: "/faculty/students", label: "My Students", icon: <Users2 className="h-4 w-4" /> },
   { to: "/faculty/attendance", label: "Attendance", icon: <ClipboardCheck className="h-4 w-4" /> },
@@ -48,6 +50,7 @@ const FacultyDashboard = () => {
       <Suspense fallback={<Fallback />}>
         <Routes>
           <Route index element={<Overview />} />
+          <Route path="profile" element={<FacultyProfile />} />
           <Route path="timetable" element={<FacultyTimetable />} />
           <Route path="students" element={<StudentDirectory />} />
           <Route path="attendance" element={<Attendance />} />

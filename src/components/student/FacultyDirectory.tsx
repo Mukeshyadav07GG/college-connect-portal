@@ -28,6 +28,7 @@ interface FacultyCard {
   // Linked auth profile (so we can chat with them)
   user_id: string | null;
   employee_id: string | null;
+  avatar_url: string | null;
 }
 
 interface ChatMsg {
@@ -57,9 +58,9 @@ export const FacultyDirectory = () => {
         supabase.rpc("get_profile_directory"),
       ]);
       const profsFiltered = ((profs as any[]) ?? []).filter((p) => p.employee_id);
-      const byName = new Map<string, { user_id: string; employee_id: string | null }>();
+      const byName = new Map<string, { user_id: string; employee_id: string | null; avatar_url: string | null }>();
       profsFiltered.forEach((p: any) => {
-        if (p.full_name) byName.set(p.full_name.trim().toLowerCase(), { user_id: p.user_id, employee_id: p.employee_id });
+        if (p.full_name) byName.set(p.full_name.trim().toLowerCase(), { user_id: p.user_id, employee_id: p.employee_id, avatar_url: p.avatar_url ?? null });
       });
       const merged: FacultyCard[] = (facs ?? []).map((f: any) => {
         const match = byName.get((f.name ?? "").trim().toLowerCase());
@@ -79,6 +80,7 @@ export const FacultyDirectory = () => {
           email: f.email ?? null,
           user_id: match?.user_id ?? null,
           employee_id: match?.employee_id ?? null,
+          avatar_url: match?.avatar_url || f.avatar_url || null,
         };
       });
       setList(merged);
