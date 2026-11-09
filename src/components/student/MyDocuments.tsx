@@ -144,8 +144,8 @@ export const MyDocuments = () => {
           )}
           {open && !["id_card", "photo"].includes(open) && (
             <div className="space-y-3">
-              {open === "aadhaar" && profile?.aadhar && (
-                <div className="glass rounded-lg p-3 text-sm">Aadhaar No: <span className="font-mono">{profile.aadhar}</span></div>
+              {open === "aadhaar" && (profile as any)?.aadhar && (
+                <div className="glass rounded-lg p-3 text-sm">Aadhaar No: <span className="font-mono">{(profile as any).aadhar}</span></div>
               )}
               <DocList k={open} />
             </div>
