@@ -14,6 +14,8 @@ const Events = lazy(() => import("@/components/student/Events").then(m => ({ def
 const Announcements = lazy(() => import("@/components/student/Announcements").then(m => ({ default: m.Announcements })));
 const StudentFees = lazy(() => import("@/components/student/StudentFees").then(m => ({ default: m.StudentFees })));
 
+const MyDocuments = lazy(() => import("@/components/student/MyDocuments").then(m => ({ default: m.MyDocuments })));
+
 const Fallback = () => (
   <div className="p-6 text-sm text-muted-foreground">Loading…</div>
 );
@@ -34,6 +36,7 @@ const StudentDashboard = () => {
           <Route path="events" element={<Events />} />
           <Route path="announcements" element={<Announcements />} />
           <Route path="fees" element={<StudentFees />} />
+          <Route path="documents" element={<MyDocuments />} />
         </Routes>
       </Suspense>
     </StudentLayout>

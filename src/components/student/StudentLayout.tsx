@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   User, Calendar as CalIcon, Users, FileText, BookOpen,
   BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home, CalendarCheck, KeyRound, Wallet, ArrowLeft,
+  FolderOpen,
 } from "lucide-react";
 
 interface NavItem { to: string; label: string; icon: any; }
@@ -25,6 +26,7 @@ const NAV: NavItem[] = [
   { to: "/student/events", label: "Events", icon: PartyPopper },
   { to: "/student/announcements", label: "Announcements", icon: Megaphone },
   { to: "/student/fees", label: "Fees & Documents", icon: Wallet },
+  { to: "/student/documents", label: "My Documents", icon: FolderOpen },
 ];
 
 export const StudentLayout = ({ children }: { children?: ReactNode }) => {

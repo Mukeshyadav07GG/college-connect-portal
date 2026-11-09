@@ -36,6 +36,7 @@ export const FeesManager = () => {
 
   const [docTitle, setDocTitle] = useState("");
   const [docFile, setDocFile] = useState<File | null>(null);
+  const [docType, setDocType] = useState("document");
 
   useEffect(() => {
     if (!allowed) return;
@@ -157,7 +158,7 @@ export const FeesManager = () => {
         student_id: selected.user_id,
         title: docTitle.trim(),
         file_url: path,
-        type: "document",
+        type: docType,
         uploaded_by: user.id,
       });
       if (dErr) throw dErr;
@@ -265,6 +266,19 @@ export const FeesManager = () => {
               <div>
                 <Label htmlFor="dtitle">Title</Label>
                 <Input id="dtitle" value={docTitle} onChange={(e) => setDocTitle(e.target.value)} placeholder="e.g. Bonafide Certificate" />
+              </div>
+              <div>
+                <Label>Document Type</Label>
+                <Select value={docType} onValueChange={setDocType}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="aadhaar">Aadhaar Card</SelectItem>
+                    <SelectItem value="admit_card">Admit Card</SelectItem>
+                    <SelectItem value="marksheet">Marksheet</SelectItem>
+                    <SelectItem value="id_card">ID Card (scan)</SelectItem>
+                    <SelectItem value="document">Other</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="dfile">File</Label>
