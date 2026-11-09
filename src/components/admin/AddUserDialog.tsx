@@ -23,6 +23,7 @@ export const AddUserDialog = ({ onCreated }: { onCreated: () => void }) => {
   const [saving, setSaving] = useState(false);
 
   const submit = async () => {
+    if (!/^\d{13}$/.test(loginId)) { toast.error("Login ID exactly 13 digit number hona chahiye"); return; }
     setSaving(true);
     const { data, error } = await supabase.functions.invoke("admin-create-user", {
       body: { role, full_name: fullName, login_id: loginId, password, branch, semester: role === "admin" ? null : semester, section: section || null, session: session.trim() || null, active_session: activeSession.trim() || null },
@@ -55,7 +56,7 @@ export const AddUserDialog = ({ onCreated }: { onCreated: () => void }) => {
           <div><Label>Full Name</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
           <div>
             <Label>{role === "student" ? "Roll Number (login ID)" : "Employee ID (login ID)"}</Label>
-            <Input value={loginId} onChange={(e) => setLoginId(e.target.value)} placeholder={role === "student" ? "02303cse013" : "FAC010"} />
+            <Input value={loginId} inputMode="numeric" maxLength={13} onChange={(e) => setLoginId(e.target.value.replace(/\D/g, "").slice(0, 13))} placeholder="2455118144475" />
           </div>
           <div><Label>Password (min 6)</Label><Input type="text" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
           {role !== "admin" && (
