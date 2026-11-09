@@ -25,6 +25,7 @@ const NAV: NavItem[] = [
   { to: "/student/events", label: "Events", icon: PartyPopper },
   { to: "/student/announcements", label: "Announcements", icon: Megaphone },
   { to: "/student/fees", label: "Fees & Documents", icon: Wallet },
+  { to: "/student/documents", label: "My Documents", icon: FolderOpen },
 ];
 
 export const StudentLayout = ({ children }: { children?: ReactNode }) => {

@@ -21,7 +21,7 @@ function extractPath(fileUrl: string): string {
   }
 }
 
-async function signedUrlFor(fileUrl: string): Promise<string | null> {
+export async function signedUrlFor(fileUrl: string): Promise<string | null> {
   const path = extractPath(fileUrl);
   if (!path) return null;
   const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 60);
