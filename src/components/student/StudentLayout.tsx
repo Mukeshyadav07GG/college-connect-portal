@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   User, Calendar as CalIcon, Users, FileText, BookOpen,
   BarChart3, Building2, PartyPopper, Megaphone, LogOut, Menu, Sun, Moon, Home, CalendarCheck, KeyRound, Wallet, ArrowLeft,
+  FolderOpen,
 } from "lucide-react";
 
 interface NavItem { to: string; label: string; icon: any; }
