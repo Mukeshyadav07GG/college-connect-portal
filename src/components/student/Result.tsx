@@ -24,21 +24,28 @@ const EXAM_META: Record<ExamType, { label: string; desc: string; gradient: strin
 };
 
 export const Result = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [results, setResults] = useState<ResultRow[]>([]);
   const [detail, setDetail] = useState<ExamType | null>(null);
   const [names, setNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("results").select("subject_code,exam_type,marks,max_marks").eq("student_id", user.id)
-      .then(({ data }) => setResults(((data ?? []) as ResultRow[]).map((r) => ({ ...r, exam_type: normExam(r.exam_type) }))));
-    supabase.from("subjects").select("code,name").then(({ data }) => {
+    (async () => {
+      const [{ data: res }, { data: subs }] = await Promise.all([
+        supabase.from("results").select("subject_code,exam_type,marks,max_marks").eq("student_id", user.id),
+        supabase.from("subjects").select("code,name,semester"),
+      ]);
       const m: Record<string, string> = {};
-      (data ?? []).forEach((s: any) => { m[s.code] = s.name; });
+      (subs ?? []).forEach((s: any) => { m[s.code] = s.name; });
       setNames(m);
-    });
-  }, [user]);
+      // Only the student's current semester subjects
+      const sem = profile?.semester;
+      const semCodes = new Set((subs ?? []).filter((s: any) => sem && s.semester === sem).map((s: any) => String(s.code).toUpperCase()));
+      const all = ((res ?? []) as ResultRow[]).map((r) => ({ ...r, exam_type: normExam(r.exam_type) }));
+      setResults(semCodes.size ? all.filter((r) => semCodes.has(r.subject_code.toUpperCase())) : all);
+    })();
+  }, [user, profile?.semester]);
 
   const byType = (t: ExamType) => results.filter((r) => r.exam_type === t);
   const totalForType = (t: ExamType) => {

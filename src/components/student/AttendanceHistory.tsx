@@ -32,7 +32,7 @@ interface SubjectStat {
 const BLINK_PREF_KEY = "attendance.blinkAlerts";
 
 export const AttendanceHistory = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<SubjectStat | null>(null);
@@ -79,16 +79,18 @@ export const AttendanceHistory = () => {
   const [reloadKey, setReloadKey] = useState(0);
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("attendance")
-      .select("date,status,subject_code")
-      .eq("student_id", user.id)
-      .order("date", { ascending: false })
-      .then(({ data }) => {
-        setRows((data ?? []) as Row[]);
-        setLoading(false);
-      });
-  }, [user, reloadKey]);
+    (async () => {
+      const [{ data }, { data: subs }] = await Promise.all([
+        supabase.from("attendance").select("date,status,subject_code").eq("student_id", user.id).order("date", { ascending: false }),
+        profile?.semester ? supabase.from("subjects").select("code").eq("semester", profile.semester) : Promise.resolve({ data: [] as any[] }),
+      ]);
+      // Only the student's current semester subjects
+      const semCodes = new Set((subs ?? []).map((s: any) => String(s.code).toUpperCase()));
+      const all = (data ?? []) as Row[];
+      setRows(semCodes.size ? all.filter((r) => semCodes.has(r.subject_code.toUpperCase())) : all);
+      setLoading(false);
+    })();
+  }, [user, reloadKey, profile?.semester]);
 
   const stats: SubjectStat[] = useMemo(() => {
     const now = Date.now();
