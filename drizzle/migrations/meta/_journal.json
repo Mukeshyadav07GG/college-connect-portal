@@ -57,6 +57,13 @@
       "when": 1793925924596,
       "tag": "0007_lock_avatar_for_non_admin",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794325475348,
+      "tag": "0008_disable_unverified_gps_attendance",
+      "breakpoints": true
     }
   ]
 }
