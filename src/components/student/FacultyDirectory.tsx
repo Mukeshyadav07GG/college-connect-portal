@@ -10,6 +10,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { SEMESTERS, semLabel, semFromCode } from "@/lib/semesters";
 
+// Match "Dr. Neeraj Jain" with "neeraj jain" etc. (ignore titles, dots, brackets)
+const normName = (x?: string | null) =>
+  (x ?? "").toLowerCase().replace(/^(mr|mrs|ms|dr|prof)\.?\s+/i, "").replace(/\(.*?\)/g, "").replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
+
 interface FacultyCard {
   // Faculty directory metadata
   id: string;             // faculty table row id
@@ -60,10 +64,10 @@ export const FacultyDirectory = () => {
       const profsFiltered = ((profs as any[]) ?? []).filter((p) => p.employee_id);
       const byName = new Map<string, { user_id: string; employee_id: string | null; avatar_url: string | null }>();
       profsFiltered.forEach((p: any) => {
-        if (p.full_name) byName.set(p.full_name.trim().toLowerCase(), { user_id: p.user_id, employee_id: p.employee_id, avatar_url: p.avatar_url ?? null });
+        if (p.full_name) byName.set(normName(p.full_name), { user_id: p.user_id, employee_id: p.employee_id, avatar_url: p.avatar_url ?? null });
       });
       const merged: FacultyCard[] = (facs ?? []).map((f: any) => {
-        const match = byName.get((f.name ?? "").trim().toLowerCase());
+        const match = byName.get(normName(f.name));
         return {
           id: f.id,
           name: f.name,

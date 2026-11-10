@@ -94,6 +94,18 @@ Deno.serve(async (req) => {
       await admin.from("user_roles").delete().eq("user_id", id);
       await admin.from("user_roles").insert({ user_id: id, role });
     }
+    if (role === "faculty") {
+      // Auto-link to the Faculty Directory so students of this semester can message them
+      const { data: existing } = await admin.from("faculty").select("id,semesters").ilike("name", fullName).limit(1);
+      const row = existing?.[0];
+      if (row) {
+        const sems = Array.from(new Set([...(row.semesters ?? []), ...(semester ? [semester] : [])]));
+        await admin.from("faculty").update({ semesters: sems }).eq("id", row.id);
+      } else {
+        const { error: fErr } = await admin.from("faculty").insert({ name: fullName, role: "Faculty", subjects: [], semesters: semester ? [semester] : [] });
+        if (fErr) console.error("faculty insert failed", fErr.message);
+      }
+    }
     if (session || activeSession) {
       const { error: sErr } = await admin.from("profiles").update({ session, active_session: activeSession }).eq("user_id", id);
       if (sErr) console.error("session update failed", sErr.message);
