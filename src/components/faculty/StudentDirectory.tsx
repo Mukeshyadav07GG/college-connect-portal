@@ -51,8 +51,11 @@ export const StudentDirectory = () => {
         ...(((me as any)?.semesters as string[] | null) ?? []),
         ...(((me as any)?.subjects as string[] | null) ?? []).map((c) => semFromCode(c)).filter(Boolean) as string[],
       ]);
+      if (sems.size === 0 && profile?.semester) sems.add(profile.semester);
       setMySems(Array.from(sems));
-      setStudents(((profs as StudentProfile[]) ?? []).filter((p) => p.semester && sems.has(p.semester)));
+      const all = (profs as StudentProfile[]) ?? [];
+      // If no semester is configured for this faculty, show all students so chat still works
+      setStudents(sems.size === 0 ? all : all.filter((p) => p.semester && sems.has(p.semester)));
     })();
   }, [profile?.full_name]);
 
