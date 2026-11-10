@@ -14,7 +14,7 @@ import {
 import { SUBJECT_FULL_NAMES } from "@/data/courses";
 import { GeoCheckIn } from "./GeoCheckIn";
 
-interface Row { date: string; status: string; subject_code: string; }
+interface Row { date: string; status: string; subject_code: string; marked_by: string | null; }
 
 interface WeekBreakdown { present: number; total: number; pct: number | null; }
 
@@ -81,12 +81,13 @@ export const AttendanceHistory = () => {
     if (!user) return;
     (async () => {
       const [{ data }, { data: subs }] = await Promise.all([
-        supabase.from("attendance").select("date,status,subject_code").eq("student_id", user.id).order("date", { ascending: false }),
+        supabase.from("attendance").select("date,status,subject_code,marked_by").eq("student_id", user.id).order("date", { ascending: false }),
         profile?.semester ? supabase.from("subjects").select("code").eq("semester", profile.semester) : Promise.resolve({ data: [] as any[] }),
       ]);
       // Only the student's current semester subjects
       const semCodes = new Set((subs ?? []).map((s: any) => String(s.code).toUpperCase()));
-      const all = (data ?? []) as Row[];
+      // Self-reported GPS rows are not a trusted attendance source; only staff-marked rows count.
+      const all = ((data ?? []) as Row[]).filter((r) => r.marked_by !== user.id);
       setRows(semCodes.size ? all.filter((r) => semCodes.has(r.subject_code.toUpperCase())) : all);
       setLoading(false);
     })();

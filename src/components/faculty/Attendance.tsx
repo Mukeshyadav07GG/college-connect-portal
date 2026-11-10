@@ -52,12 +52,15 @@ export const Attendance = () => {
   // Load GPS self check-ins for the selected subject/date
   useEffect(() => {
     if (!subject) { setGps({}); return; }
-    supabase.from("attendance").select("student_id, distance_meters, location_status")
+    supabase.from("attendance").select("student_id, marked_by, distance_meters, location_status")
       .eq("subject_code", subject).eq("date", date).eq("location_status", "verified")
       .then(({ data }) => {
         const g: Record<string, number> = {};
         const m: Record<string, "present"> = {};
-        (data ?? []).forEach((r) => { g[r.student_id] = r.distance_meters ?? 0; m[r.student_id] = "present"; });
+        (data ?? []).filter((r) => r.marked_by !== r.student_id).forEach((r) => {
+          g[r.student_id] = r.distance_meters ?? 0;
+          m[r.student_id] = "present";
+        });
         setGps(g);
         setMarks((prev) => ({ ...prev, ...m }));
       });
