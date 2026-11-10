@@ -1,7 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { defineTool, type ToolContext } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-import { MAX_ASSIGNMENT_FILE_BYTES } from "@/lib/assignmentFiles";
+
+const MAX_ASSIGNMENT_FILE_BYTES = 50 * 1024 * 1024;
 
 const ASSIGNMENT_FILE_TYPES: Record<string, string> = {
   pdf: "application/pdf",

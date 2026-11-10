@@ -130,7 +130,7 @@ var list_faculty_directory_default = defineTool4({
 import { createClient as createClient5 } from "npm:@supabase/supabase-js@^2.103.3";
 import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { z as z3 } from "npm:zod@^4.4.3";
-import { MAX_ASSIGNMENT_FILE_BYTES } from "npm:@/lib/assignmentFiles";
+var MAX_ASSIGNMENT_FILE_BYTES = 50 * 1024 * 1024;
 var ASSIGNMENT_FILE_TYPES = {
   pdf: "application/pdf",
   doc: "application/msword",
