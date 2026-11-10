@@ -130,6 +130,50 @@ var list_faculty_directory_default = defineTool4({
 import { createClient as createClient5 } from "npm:@supabase/supabase-js@^2.103.3";
 import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { z as z3 } from "npm:zod@^4.4.3";
+var MAX_ASSIGNMENT_FILE_BYTES = 10 * 1024 * 1024;
+var ASSIGNMENT_FILE_TYPES = {
+  pdf: "application/pdf",
+  doc: "application/msword",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ppt: "application/vnd.ms-powerpoint",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  xls: "application/vnd.ms-excel",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  webp: "image/webp"
+};
+function hasPrefix(bytes, prefix) {
+  return prefix.every((byte, index) => bytes[index] === byte);
+}
+function hasValidFileSignature(bytes, mime) {
+  switch (mime) {
+    case "application/pdf":
+      return new TextDecoder().decode(bytes.slice(0, 5)) === "%PDF-";
+    case "image/jpeg":
+      return hasPrefix(bytes, [255, 216, 255]);
+    case "image/png":
+      return hasPrefix(bytes, [137, 80, 78, 71, 13, 10, 26, 10]);
+    case "image/gif": {
+      const header = new TextDecoder().decode(bytes.slice(0, 6));
+      return header === "GIF87a" || header === "GIF89a";
+    }
+    case "image/webp":
+      return new TextDecoder().decode(bytes.slice(0, 4)) === "RIFF" && new TextDecoder().decode(bytes.slice(8, 12)) === "WEBP";
+    case "application/msword":
+    case "application/vnd.ms-powerpoint":
+    case "application/vnd.ms-excel":
+      return hasPrefix(bytes, [208, 207, 17, 224, 161, 177, 26, 225]);
+    case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+    case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+      return hasPrefix(bytes, [80, 75, 3, 4]);
+    default:
+      return false;
+  }
+}
 function supabaseForUser5(ctx) {
   return createClient5(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
     global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
@@ -152,7 +196,7 @@ var upload_assignment_default = defineTool5({
     deadline: z3.string().datetime({ offset: true }).describe("Deadline as an ISO 8601 timestamp with timezone."),
     description: z3.string().trim().max(4e3).optional().describe("Optional description."),
     file_name: z3.string().trim().min(1).max(200).describe("Original file name including extension."),
-    file_base64: z3.string().min(1).describe("File contents as base64, either raw or a `data:<mime>;base64,...` URL."),
+    file_base64: z3.string().min(1).max(15 * 1024 * 1024).describe("File contents as base64, either raw or a `data:<mime>;base64,...` URL."),
     file_mime: z3.string().trim().optional().describe("Optional MIME type (e.g. `application/pdf`). Defaults to `application/octet-stream`.")
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
@@ -171,10 +215,22 @@ var upload_assignment_default = defineTool5({
     } catch {
       return { content: [{ type: "text", text: "file_base64 is not valid base64" }], isError: true };
     }
+    if (bytes.byteLength > MAX_ASSIGNMENT_FILE_BYTES) {
+      return { content: [{ type: "text", text: "Assignment files must be 10 MB or smaller" }], isError: true };
+    }
+    const extension = input.file_name.split(".").pop()?.toLowerCase() ?? "";
+    const expectedMime = ASSIGNMENT_FILE_TYPES[extension];
+    const mime = (input.file_mime || expectedMime || "").trim().toLowerCase();
+    if (!expectedMime || mime !== expectedMime || !hasValidFileSignature(bytes, mime)) {
+      return {
+        content: [{ type: "text", text: "Use a supported PDF, Office document, or image file with matching contents" }],
+        isError: true
+      };
+    }
     const safeName = input.file_name.replace(/[^A-Za-z0-9._-]/g, "_");
     const path = `${uid}/${Date.now()}-${safeName}`;
     const { error: upErr } = await supabase.storage.from("assignments").upload(path, bytes, {
-      contentType: input.file_mime || "application/octet-stream",
+      contentType: mime,
       upsert: false
     });
     if (upErr) {
