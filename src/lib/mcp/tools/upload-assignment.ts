@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { defineTool, type ToolContext } from "@lovable.dev/mcp-js";
 import { z } from "zod";
+import { MAX_ASSIGNMENT_FILE_BYTES } from "@/lib/assignmentFiles";
 
-const MAX_ASSIGNMENT_FILE_BYTES = 10 * 1024 * 1024;
 const ASSIGNMENT_FILE_TYPES: Record<string, string> = {
   pdf: "application/pdf",
   doc: "application/msword",
@@ -86,7 +86,7 @@ export default defineTool({
     file_base64: z
       .string()
       .min(1)
-      .max(15 * 1024 * 1024)
+      .max(70 * 1024 * 1024)
       .describe("File contents as base64, either raw or a `data:<mime>;base64,...` URL."),
     file_mime: z
       .string()
@@ -115,7 +115,7 @@ export default defineTool({
     }
 
     if (bytes.byteLength > MAX_ASSIGNMENT_FILE_BYTES) {
-      return { content: [{ type: "text", text: "Assignment files must be 10 MB or smaller" }], isError: true };
+      return { content: [{ type: "text", text: "Assignment files must be 50 MB or smaller" }], isError: true };
     }
 
     const extension = input.file_name.split(".").pop()?.toLowerCase() ?? "";

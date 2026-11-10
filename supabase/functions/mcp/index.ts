@@ -130,7 +130,7 @@ var list_faculty_directory_default = defineTool4({
 import { createClient as createClient5 } from "npm:@supabase/supabase-js@^2.103.3";
 import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { z as z3 } from "npm:zod@^4.4.3";
-var MAX_ASSIGNMENT_FILE_BYTES = 10 * 1024 * 1024;
+import { MAX_ASSIGNMENT_FILE_BYTES } from "npm:@/lib/assignmentFiles";
 var ASSIGNMENT_FILE_TYPES = {
   pdf: "application/pdf",
   doc: "application/msword",
@@ -196,7 +196,7 @@ var upload_assignment_default = defineTool5({
     deadline: z3.string().datetime({ offset: true }).describe("Deadline as an ISO 8601 timestamp with timezone."),
     description: z3.string().trim().max(4e3).optional().describe("Optional description."),
     file_name: z3.string().trim().min(1).max(200).describe("Original file name including extension."),
-    file_base64: z3.string().min(1).max(15 * 1024 * 1024).describe("File contents as base64, either raw or a `data:<mime>;base64,...` URL."),
+    file_base64: z3.string().min(1).max(70 * 1024 * 1024).describe("File contents as base64, either raw or a `data:<mime>;base64,...` URL."),
     file_mime: z3.string().trim().optional().describe("Optional MIME type (e.g. `application/pdf`). Defaults to `application/octet-stream`.")
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
@@ -216,7 +216,7 @@ var upload_assignment_default = defineTool5({
       return { content: [{ type: "text", text: "file_base64 is not valid base64" }], isError: true };
     }
     if (bytes.byteLength > MAX_ASSIGNMENT_FILE_BYTES) {
-      return { content: [{ type: "text", text: "Assignment files must be 10 MB or smaller" }], isError: true };
+      return { content: [{ type: "text", text: "Assignment files must be 50 MB or smaller" }], isError: true };
     }
     const extension = input.file_name.split(".").pop()?.toLowerCase() ?? "";
     const expectedMime = ASSIGNMENT_FILE_TYPES[extension];

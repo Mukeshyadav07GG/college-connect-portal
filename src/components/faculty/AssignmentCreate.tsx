@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus, FileText, Eye, Download } from "lucide-react";
+import { validateAssignmentFile } from "@/lib/assignmentFiles";
 
 export const AssignmentCreate = () => {
   const { user } = useAuth();
@@ -43,6 +44,8 @@ export const AssignmentCreate = () => {
     setBusy(true);
     let fileUrl: string | null = null;
     if (file) {
+      const validationError = await validateAssignmentFile(file);
+      if (validationError) { toast.error(validationError); setBusy(false); return; }
       const path = `${user.id}/${Date.now()}-${file.name}`;
       const { error: upErr } = await supabase.storage.from("assignments").upload(path, file);
       if (upErr) { toast.error(upErr.message); setBusy(false); return; }
@@ -80,7 +83,7 @@ export const AssignmentCreate = () => {
                 </Select>
               </div>
               <div><Label>Deadline</Label><Input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} /></div>
-              <div><Label>Attachment (optional)</Label><Input type="file" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></div>
+              <div><Label>Attachment (optional, up to 50 MB)</Label><Input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></div>
               <Button className="w-full" onClick={submit} disabled={busy}>{busy ? "Saving…" : "Create"}</Button>
             </div>
           </DialogContent>
