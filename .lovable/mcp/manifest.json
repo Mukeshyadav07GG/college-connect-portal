@@ -150,6 +150,7 @@
             "file_base64": {
               "type": "string",
               "minLength": 1,
+              "maxLength": 73400320,
               "description": "File contents as base64, either raw or a `data:<mime>;base64,...` URL."
             },
             "file_mime": {
