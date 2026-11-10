@@ -163,7 +163,7 @@ export const AttendanceHistory = () => {
         </div>
       </div>
 
-      <GeoCheckIn onMarked={() => setReloadKey((k) => k + 1)} />
+      <GeoCheckIn />
 
       {/* Overall card */}
       <div className="glass-strong rounded-3xl p-6 animate-scale-in flex flex-col md:flex-row md:items-center gap-6">
